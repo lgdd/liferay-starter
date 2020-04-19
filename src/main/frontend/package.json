@@ -1,0 +1,27 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "yarn elm-app build",
+    "start": "yarn elm-app start",
+    "make": "elm make",
+    "repl": "elm repl",
+    "reactor": "elm reactor",
+    "test": "yarn elm-app test",
+    "elm-app": "./node_modules/.bin/elm-app",
+    "install": "yarn elm-app install",
+    "eject": "yarn elm-app eject",
+    "format": "./node_modules/.bin/elm-format src/ --yes"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "create-elm-app": "^4.2.8",
+    "elm-format": "^0.8.3"
+  }
+}
