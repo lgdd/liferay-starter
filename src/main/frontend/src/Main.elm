@@ -2,8 +2,8 @@ port module Main exposing (..)
 
 import Browser
 import File.Download as Download
-import Html exposing (Html, button, code, div, h1, h2, i, input, label, node, option, p, pre, select, span, text)
-import Html.Attributes exposing (attribute, class, for, id, title, type_, value)
+import Html exposing (Html, a, button, code, div, footer, h1, h2, i, input, label, node, option, p, pre, select, span, text)
+import Html.Attributes exposing (attribute, class, for, href, id, target, title, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Regex
 
@@ -109,43 +109,54 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    node "main"
-        [ attribute "role" "main" ]
-        [ div [ class "container-fluid container-fluid-max-lg container-form-lg" ]
-            [ viewThemeSwitch
-            , viewHeader
-            , div [ class "row" ]
-                [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "Configure" ] ] ]
-            , div [ class "row" ]
-                [ div [ class "col-md" ] [ viewSelectTool ]
-                , div [ class "col-md" ] [ viewSelectLiferayVersion ]
-                ]
-            , div [ class "row" ]
-                [ div [ class "col-md" ] [ viewInputGroupId model ]
-                , div [ class "col-md" ] [ viewInputArtifactId model ]
-                , div [ class "col-md" ] [ viewInputProjectVersion model ]
-                ]
-            , div [ class "row" ]
-                [ div [ class "col-md" ]
-                    [ div [ class "form-group" ]
-                        [ button [ class "btn btn-primary", onClick DownloadWorkspace ]
-                            [ text "Generate your workspace"
+    div []
+        [ node "main"
+            [ attribute "role" "main" ]
+            [ div [ class "container-fluid container-fluid-max-lg container-form-lg" ]
+                [ viewThemeSwitch
+                , viewHeader
+                , viewGithubButtons
+                , div [ class "row" ]
+                    [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "Configure" ] ] ]
+                , div [ class "row" ]
+                    [ div [ class "col-md" ] [ viewSelectTool ]
+                    , div [ class "col-md" ] [ viewSelectLiferayVersion ]
+                    ]
+                , div [ class "row" ]
+                    [ div [ class "col-md" ] [ viewInputGroupId model ]
+                    , div [ class "col-md" ] [ viewInputArtifactId model ]
+                    , div [ class "col-md" ] [ viewInputProjectVersion model ]
+                    ]
+                , div [ class "row" ]
+                    [ div [ class "col-md" ]
+                        [ div [ class "form-group" ]
+                            [ button [ class "btn btn-primary", onClick DownloadWorkspace ]
+                                [ text "Generate your workspace"
+                                ]
                             ]
                         ]
                     ]
-                ]
-            , div [ class "row" ]
-                [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "What now?" ] ] ]
-            , div [ class "row" ]
-                [ div [ class "col-md" ]
-                    [ p [] [ text "Unzip your workspace and intialize your Liferay bundle:" ]
-                    , button
-                        [ class "btn btn-sm btn-light pull-right ml-3"
-                        , title "Copy to clipboard"
-                        , onClick (CopyToClipboard "init-cmd")
+                , div [ class "row" ]
+                    [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "What now?" ] ] ]
+                , div [ class "row" ]
+                    [ div [ class "col-md" ]
+                        [ p [] [ text "Unzip your workspace and intialize your Liferay bundle:" ]
+                        , button
+                            [ class "btn btn-sm btn-light pull-right ml-3"
+                            , title "Copy to clipboard"
+                            , onClick (CopyToClipboard "init-cmd")
+                            ]
+                            [ i [ class "fa fa-clipboard", attribute "aria-hidden" "true" ] [] ]
+                        , p [] [ pre [] [ code [ id "init-cmd" ] [ text (getInitCmd model) ] ] ]
                         ]
-                        [ i [ class "fa fa-clipboard", attribute "aria-hidden" "true" ] [] ]
-                    , p [] [ pre [] [ code [ id "init-cmd" ] [ text (getInitCmd model) ] ] ]
+                    ]
+                ]
+            ]
+        , footer [ class "footer mt-auto py-3" ]
+            [ div [ class "container text-center" ]
+                [ span [ class "text-muted" ]
+                    [ text "MIT Licensed | Made with ❤ by "
+                    , a [ href "https://github.com/lgdd", target "_blank" ] [ text "lgd" ]
                     ]
                 ]
             ]
@@ -180,6 +191,30 @@ viewHeader =
     div [ class "row" ]
         [ div [ class "col-md" ]
             [ h1 [ class "mb-3 text-center" ] [ text "Liferay Starter" ] ]
+        ]
+
+
+viewGithubButtons : Html Msg
+viewGithubButtons =
+    div [ class "row" ]
+        [ div [ class "col-md mb-4 text-center gh-btn-list" ]
+            [ a
+                [ class "github-button"
+                , href "https://github.com/lgdd/liferay-starter"
+                , attribute "data-icon" "octicon-star"
+                , attribute "data-show-count" "true"
+                , attribute "aria-label" "Star ntkme/github-buttons on GitHub"
+                ]
+                [ text "Star" ]
+            , a
+                [ class "ml-4 github-button"
+                , href "https://github.com/lgdd/liferay-starter/fork"
+                , attribute "data-icon" "octicon-repo-forked"
+                , attribute "data-show-count" "true"
+                , attribute "aria-label" "Fork ntkme/github-buttons on GitHub"
+                ]
+                [ text "Fork" ]
+            ]
         ]
 
 

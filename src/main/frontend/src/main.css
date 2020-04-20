@@ -18,6 +18,14 @@ body {
     background: white;
 }
 
+main {
+    min-height: calc(100vh - 70px);
+}
+
+footer {
+    height: 50px;
+}
+
 h1, .h1 {
     font-size: 2rem;
 }
@@ -34,6 +42,10 @@ code::before {
     content: "$ "
 }
 
+.gh-btn-list span {
+    margin-left: 10px;
+}
+
 body.dark {
     background: #293544;
     color: #eee;
@@ -45,6 +57,10 @@ body.dark {
 
 .dark label {
     color: #eee;
+}
+
+.dark a {
+    color: white;
 }
 
 .dark .toggle-switch-check:checked ~ .toggle-switch-bar::before {
