@@ -36,3 +36,6 @@ release.properties
 
 # Quarkus
 lsp
+
+# Frontend
+src/main/frontend/node
