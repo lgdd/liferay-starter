@@ -8,13 +8,15 @@ Try it online: https://lfr-starter.duckdns.org/.
 
 ## Try it locally
 
-Using Docker:
+Using [Docker](https://hub.docker.com/repository/docker/lgdd/liferay-starter):
 ```shell
 docker run -it --rm -p 9080:8080 lgdd/liferay-starter
 # or
 docker run -it --rm -p 9080:8080 lgdd/liferay-starter:jvm-latest
 ```
-> Default image `lgdd/liferay-starter:latest` is a container image including a native executable instead of a jar. See: https://quarkus.io/guides/building-native-image.
+> The default image and tag `lgdd/liferay-starter:latest` is a container image including a native executable instead of a jar. See: https://quarkus.io/guides/building-native-image.
+
+Once the container is started, go to http://localhost:9080.
 
 Using this repo:
 ```
@@ -23,6 +25,10 @@ cd liferay-starter
 make dev
 ```
 > Please refer to the [Makefile](Makefile) to see the complete list of available commands.
+
+Once the server is started, go to http://localhost:8080.
+
+If you want to work on the frontend, run `make devFront` and go to http://localhost:3000.
 
 ## License
 [MIT](LICENSE)
