@@ -38,4 +38,4 @@ release.properties
 lsp
 
 # Frontend
-src/main/frontend/node
+src/main/frontend/node/
