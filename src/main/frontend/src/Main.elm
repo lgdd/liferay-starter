@@ -5,6 +5,7 @@ import File.Download as Download
 import Html exposing (Html, button, code, div, h1, h2, i, input, label, node, option, p, pre, select, span, text)
 import Html.Attributes exposing (attribute, class, for, id, title, type_, value)
 import Html.Events exposing (onClick, onInput)
+import Regex
 
 
 
@@ -85,11 +86,7 @@ update msg model =
         UpdateProjectArtifactId newArtifactId ->
             let
                 artifactId =
-                    if newArtifactId == "" then
-                        "liferay-project"
-
-                    else
-                        newArtifactId
+                    toKebabCase newArtifactId "liferay-project"
             in
             ( { model | projectArtifactId = artifactId }, Cmd.none )
 
@@ -227,7 +224,7 @@ viewInputGroupId model =
 viewInputArtifactId : Model -> Html Msg
 viewInputArtifactId model =
     div [ class "form-group" ]
-        [ label [ for "artifactId" ] [ text "Porject Artifact ID" ]
+        [ label [ for "artifactId" ] [ text "Project Artifact ID" ]
         , input
             [ id "artifactId"
             , class "form-control"
@@ -317,6 +314,58 @@ getInitCmd model =
         ++ model.toolWrapper
         ++ " && "
         ++ initCmd
+
+
+toKebabCase : String -> String -> String
+toKebabCase src defaultName =
+    if String.isEmpty src then
+        defaultName
+
+    else
+        let
+            mr1 =
+                Regex.fromString "[^a-zA-Z0-9]+"
+
+            mr2 =
+                Regex.fromString "[\\s\\.\\-]"
+
+            mr3 =
+                Regex.fromString "([a-z\\d])([A-Z])"
+
+            mr4 =
+                Regex.fromString "([A-Z]+)([A-Z][a-z\\d]+)"
+
+            sep =
+                "-"
+
+            subsep r =
+                case r.submatches of
+                    fst :: snd :: _ ->
+                        Maybe.map2 (\f s -> f ++ sep ++ s) fst snd
+                            |> Maybe.withDefault r.match
+
+                    _ ->
+                        r.match
+        in
+        Maybe.map4
+            (\r1 r2 r3 r4 ->
+                src
+                    |> Regex.split r1
+                    |> List.map
+                        (\word ->
+                            word
+                                |> Regex.replace r2 (\_ -> sep)
+                                |> Regex.replace r3 subsep
+                                |> Regex.replace r4 subsep
+                        )
+                    |> String.join sep
+                    |> String.toLower
+            )
+            mr1
+            mr2
+            mr3
+            mr4
+            |> Maybe.withDefault defaultName
 
 
 
