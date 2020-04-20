@@ -23,5 +23,8 @@
   "devDependencies": {
     "create-elm-app": "^4.2.8",
     "elm-format": "^0.8.3"
+  },
+  "dependencies": {
+    "js-file-downloader": "^1.1.6"
   }
 }

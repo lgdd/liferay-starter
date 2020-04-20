@@ -1,7 +1,6 @@
 port module Main exposing (..)
 
 import Browser
-import File.Download as Download
 import Html exposing (Html, a, button, code, div, footer, h1, h2, i, input, label, node, option, p, pre, select, span, text)
 import Html.Attributes exposing (attribute, class, for, href, id, target, title, type_, value)
 import Html.Events exposing (onClick, onInput)
@@ -94,7 +93,7 @@ update msg model =
             ( { model | projectVersion = newProjectVersion }, Cmd.none )
 
         DownloadWorkspace ->
-            ( model, Download.url (getDownloadWorkspaceUrl model) )
+            ( model, downloadWorkspace (getDownloadWorkspaceUrl model) )
 
         ToggleDark _ ->
             ( model, toggleDark () )
@@ -130,7 +129,7 @@ view model =
                 , div [ class "row" ]
                     [ div [ class "col-md" ]
                         [ div [ class "form-group" ]
-                            [ button [ class "btn btn-primary", onClick DownloadWorkspace ]
+                            [ button [ id "downloadWorkspace", class "btn btn-primary", onClick DownloadWorkspace ]
                                 [ text "Generate your workspace"
                                 ]
                             ]
@@ -414,6 +413,9 @@ port initTheme : () -> Cmd msg
 
 
 port copyToClipboard : String -> Cmd msg
+
+
+port downloadWorkspace : String -> Cmd msg
 
 
 

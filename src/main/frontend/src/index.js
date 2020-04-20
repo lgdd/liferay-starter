@@ -1,6 +1,7 @@
 import './main.css';
 import {Elm} from './Main.elm';
 import * as serviceWorker from './serviceWorker';
+import Downloader from 'js-file-downloader';
 
 const darkTheme = "dark";
 const apiHost = process.env.NODE_ENV === 'development' ? process.env.ELM_APP_API_HOST : "";
@@ -40,6 +41,22 @@ elmApp.ports.copyToClipboard.subscribe((containerId) => {
         console.warn("Could not select text in node: Unsupported browser.");
     }
     document.execCommand("copy");
+});
+
+elmApp.ports.downloadWorkspace.subscribe((downloadUrl) => {
+    const downloadBtn = document.querySelector("#downloadWorkspace");
+    const downloadBtnText = downloadBtn.innerText;
+    downloadBtn.disabled = true;
+    downloadBtn.innerText = "Generating your workspace...";
+    new Downloader({
+        url: downloadUrl,
+        autoStart: true
+    }).then(function () {
+        downloadBtn.innerText = downloadBtnText;
+        downloadBtn.disabled = false;
+    }).catch(function (error) {
+        console.error(error);
+    });
 });
 
 // If you want your app to work offline and load faster, you can change
