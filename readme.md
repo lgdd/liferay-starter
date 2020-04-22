@@ -12,7 +12,7 @@ Using [Docker](https://hub.docker.com/repository/docker/lgdd/liferay-starter):
 ```shell
 docker run -it --rm -p 9080:8080 lgdd/liferay-starter
 # or
-docker run -it --rm -p 9080:8080 lgdd/liferay-starter:jvm-latest
+docker run -it --rm -p 9080:8080 lgdd/liferay-starter:latest-jvm
 ```
 > The default image and tag `lgdd/liferay-starter:latest` is a container image including a native executable instead of a jar. See: https://quarkus.io/guides/building-native-image.
 
