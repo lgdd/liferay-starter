@@ -5,7 +5,7 @@ devFront:
 	cd src/main/frontend && yarn start
 
 dockerBuild:
-	./mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=jvm-latest
+	./mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=latest-jvm
 
 dockerBuildNative:
 	./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true
