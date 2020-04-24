@@ -9,7 +9,8 @@ const apiHost = process.env.NODE_ENV === 'development' ? process.env.ELM_APP_API
 const elmApp = Elm.Main.init({
     node: document.getElementById('root'),
     flags: {
-        "apiHost": apiHost
+        "apiHost": apiHost,
+        "platform": window.navigator.platform
     }
 });
 

@@ -39,13 +39,13 @@ versions =
 
 
 type alias Flags =
-    { apiHost : String }
+    { apiHost : String, platform : String }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { apiHost = flags.apiHost
-      , system = Unix
+      , system = getSystemFromPlatform flags.platform
       , tool = "gradle"
       , liferayVersion = "7.3"
       , toolWrapper = "gradlew"
@@ -474,6 +474,19 @@ getInitCmdWindows model =
         ++ getZipFileName model
         ++ " && "
         ++ initCmd
+
+
+getSystemFromPlatform : String -> System
+getSystemFromPlatform platform =
+    let
+        platformLowerCase =
+            String.toLower platform
+    in
+    if String.contains "win" platformLowerCase then
+        Windows
+
+    else
+        Unix
 
 
 toKebabCase : String -> String -> String
