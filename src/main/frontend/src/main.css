@@ -32,7 +32,7 @@ h1, .h1 {
 
 pre {
     background: #eee;
-    padding: 0.8rem;
+    padding: 1.2rem;
     border-radius: 0.25rem;
     color: #E83E8C;
     white-space: pre-wrap;
@@ -46,6 +46,26 @@ code::before {
     margin-left: 10px;
 }
 
+#copy-cmd {
+    background: #eee;
+    color: #333;
+    position: absolute;
+    right: 2rem;
+}
+
+#code-container {
+    margin-top: 2rem;
+}
+
+#code-container pre {
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+}
+
+#code-container span.nav-link {
+    cursor: pointer;
+}
+
 body.dark {
     background: #293544;
     color: #eee;
@@ -53,6 +73,19 @@ body.dark {
 
 .dark .btn.btn-primary {
     background-color: rgb(57, 117, 207);
+}
+
+.dark #copy-cmd {
+    background: #19202a;
+    color: #eee;
+}
+
+.dark #code-container .nav-link.active {
+    color: #eee;
+}
+
+.dark #code-container .nav-link {
+    color: #aaa;
 }
 
 .dark label {

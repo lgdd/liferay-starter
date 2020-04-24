@@ -1,7 +1,7 @@
 port module Main exposing (..)
 
 import Browser
-import Html exposing (Html, a, button, code, div, footer, h1, h2, i, input, label, node, option, p, pre, select, span, text)
+import Html exposing (Html, a, button, code, div, footer, h1, h2, i, input, label, li, node, option, p, pre, select, span, text, ul)
 import Html.Attributes exposing (attribute, class, for, href, id, target, title, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Regex
@@ -13,6 +13,7 @@ import Regex
 
 type alias Model =
     { apiHost : String
+    , system : System
     , tool : String
     , liferayVersion : String
     , toolWrapper : String
@@ -20,6 +21,11 @@ type alias Model =
     , projectArtifactId : String
     , projectVersion : String
     }
+
+
+type System
+    = Unix
+    | Windows
 
 
 tools : List String
@@ -39,6 +45,7 @@ type alias Flags =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { apiHost = flags.apiHost
+      , system = Unix
       , tool = "gradle"
       , liferayVersion = "7.3"
       , toolWrapper = "gradlew"
@@ -60,6 +67,7 @@ type Msg
     | UpdateProjectGroupId String
     | UpdateProjectArtifactId String
     | UpdateProjectVersion String
+    | UpdateSystem System
     | DownloadWorkspace
     | ToggleDark String
     | CopyToClipboard String
@@ -91,6 +99,9 @@ update msg model =
 
         UpdateProjectVersion newProjectVersion ->
             ( { model | projectVersion = newProjectVersion }, Cmd.none )
+
+        UpdateSystem newSystem ->
+            ( { model | system = newSystem }, Cmd.none )
 
         DownloadWorkspace ->
             ( model, downloadWorkspace (getDownloadWorkspaceUrl model) )
@@ -140,13 +151,7 @@ view model =
                 , div [ class "row" ]
                     [ div [ class "col-md" ]
                         [ p [] [ text "Unzip your workspace and intialize your Liferay bundle:" ]
-                        , button
-                            [ class "btn btn-sm btn-light pull-right ml-3"
-                            , title "Copy to clipboard"
-                            , onClick (CopyToClipboard "init-cmd")
-                            ]
-                            [ i [ class "fa fa-clipboard", attribute "aria-hidden" "true" ] [] ]
-                        , p [] [ pre [] [ code [ id "init-cmd" ] [ text (getInitCmd model) ] ] ]
+                        , viewInitCmd model
                         ]
                     ]
                 ]
@@ -202,7 +207,7 @@ viewGithubButtons =
                 , href "https://github.com/lgdd/liferay-starter"
                 , attribute "data-icon" "octicon-star"
                 , attribute "data-show-count" "true"
-                , attribute "aria-label" "Star ntkme/github-buttons on GitHub"
+                , attribute "aria-label" "Star lgdd/liferay-starter on GitHub"
                 ]
                 [ text "Star" ]
             , a
@@ -210,7 +215,7 @@ viewGithubButtons =
                 , href "https://github.com/lgdd/liferay-starter/fork"
                 , attribute "data-icon" "octicon-repo-forked"
                 , attribute "data-show-count" "true"
-                , attribute "aria-label" "Fork ntkme/github-buttons on GitHub"
+                , attribute "aria-label" "Fork lgdd/liferay-starter on GitHub"
                 ]
                 [ text "Fork" ]
             ]
@@ -285,6 +290,87 @@ viewInputProjectVersion model =
         ]
 
 
+viewInitCmd : Model -> Html Msg
+viewInitCmd model =
+    div [ id "code-container" ]
+        [ p []
+            [ viewInitCmdPanels model
+            ]
+        ]
+
+
+viewInitCmdPanels : Model -> Html Msg
+viewInitCmdPanels model =
+    let
+        unixClassNames =
+            case model.system of
+                Unix ->
+                    ( "nav-link active", "active fade show tab-pane" )
+
+                Windows ->
+                    ( "nav-link", "fade tab-pane" )
+
+        windowsClassNames =
+            case model.system of
+                Unix ->
+                    ( "nav-link", "fade tab-pane" )
+
+                Windows ->
+                    ( "nav-link active", "active fade show tab-pane" )
+    in
+    pre []
+        [ button
+            [ id "copy-cmd"
+            , class "btn btn-sm btn-default"
+            , title "Copy to clipboard"
+            , onClick (CopyToClipboard "#code-container .tab-pane.active .init-cmd")
+            ]
+            [ i [ class "fa fa-clipboard", attribute "aria-hidden" "true" ] [] ]
+        , ul [ class "nav nav-underline mb-3", attribute "role" "tablist" ]
+            [ li [ class "nav-item" ]
+                [ span
+                    [ id "unixTab"
+                    , class (Tuple.first unixClassNames)
+                    , attribute "data-toggle" "tab"
+                    , attribute "role" "tab"
+                    , attribute "aria-controls" "unix"
+                    , attribute "aria-expanded" "true"
+                    , onClick (UpdateSystem Unix)
+                    ]
+                    [ text "Linux / Mac" ]
+                ]
+            , li [ class "nav-item" ]
+                [ span
+                    [ id "windowsTab"
+                    , class (Tuple.first windowsClassNames)
+                    , attribute "data-toggle" "tab"
+                    , attribute "role" "tab"
+                    , attribute "aria-controls" "windows"
+                    , attribute "aria-expanded" "true"
+                    , onClick (UpdateSystem Windows)
+                    ]
+                    [ text "Windows" ]
+                ]
+            ]
+        , div [ class "tab-content" ]
+            [ div
+                [ id "unix"
+                , class (Tuple.second unixClassNames)
+                , attribute "role" "tabpanel"
+                , attribute "aria-labelledby" "unixTab"
+                ]
+                [ code [ class "init-cmd" ] [ text (getInitCmd model) ] ]
+            , div
+                [ id "windows"
+                , class (Tuple.second windowsClassNames)
+                , attribute "role" "tabpanel"
+                , attribute "aria-labelledby" "windowsTab"
+                ]
+                [ code [ class "init-cmd" ] [ text (getInitCmd model) ] ]
+            ]
+        ]
+
+
 getToolWrapper : String -> String
 getToolWrapper tool =
     if tool == "gradle" then
@@ -320,6 +406,16 @@ getDownloadWorkspaceUrl model =
 
 getInitCmd : Model -> String
 getInitCmd model =
+    case model.system of
+        Unix ->
+            getInitCmdUnix model
+
+        Windows ->
+            getInitCmdWindows model
+
+
+getInitCmdUnix : Model -> String
+getInitCmdUnix model =
     let
         initCmd =
             if model.tool == "gradle" then
@@ -346,6 +442,36 @@ getInitCmd model =
         ++ getZipFileName model
         ++ " && chmod +x "
         ++ model.toolWrapper
+        ++ " && "
+        ++ initCmd
+
+
+getInitCmdWindows : Model -> String
+getInitCmdWindows model =
+    let
+        initCmd =
+            if model.tool == "gradle" then
+                "gradlew.bat initBundle"
+
+            else
+                "mvnw.cmd bundle-support:init"
+    in
+    "mkdir "
+        ++ model.projectArtifactId
+        ++ " && "
+        ++ "copy "
+        ++ getZipFileName model
+        ++ " "
+        ++ model.projectArtifactId
+        ++ " && "
+        ++ "cd "
+        ++ model.projectArtifactId
+        ++ " && "
+        ++ "jar xvf "
+        ++ getZipFileName model
+        ++ " && "
+        ++ "del "
+        ++ getZipFileName model
         ++ " && "
         ++ initCmd
 

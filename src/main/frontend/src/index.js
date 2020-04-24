@@ -25,7 +25,7 @@ elmApp.ports.toggleDark.subscribe(() => {
 });
 
 elmApp.ports.copyToClipboard.subscribe((containerId) => {
-    const node = document.getElementById(containerId);
+    const node = document.querySelector(containerId);
 
     if (document.body.createTextRange) {
         const range = document.body.createTextRange();
