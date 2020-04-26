@@ -57,6 +57,8 @@ elmApp.ports.downloadWorkspace.subscribe((downloadUrl) => {
         downloadBtn.disabled = false;
     }).catch(function (error) {
         console.error(error);
+        downloadBtn.innerText = downloadBtnText;
+        downloadBtn.disabled = false;
     });
 });
 

@@ -1,20 +1,22 @@
-package com.github.lgdd.liferay.starter.utils;
+package com.github.lgdd.liferay.starter.services;
 
 import org.apache.commons.compress.utils.IOUtils;
 
+import javax.inject.Singleton;
 import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public abstract class ArchiveUtil {
+@Singleton
+public class ArchiveService {
 
-    public static void compressZipfile(String sourceDir, OutputStream os) throws IOException {
+    public void compressZipfile(String sourceDir, OutputStream os) throws IOException {
         ZipOutputStream zos = new ZipOutputStream(os);
         compressDirectoryToZipfile(sourceDir, sourceDir, zos);
         IOUtils.closeQuietly(zos);
     }
 
-    private static void compressDirectoryToZipfile(String rootDir, String sourceDir, ZipOutputStream out) throws IOException, FileNotFoundException {
+    private void compressDirectoryToZipfile(String rootDir, String sourceDir, ZipOutputStream out) throws IOException, FileNotFoundException {
         File[] fileList = new File(sourceDir).listFiles();
         if (fileList.length == 0) { // empty directory / empty folder
             ZipEntry entry = new ZipEntry(sourceDir.replace(rootDir, "") + "/");

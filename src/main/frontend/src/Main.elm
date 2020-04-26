@@ -88,7 +88,15 @@ update msg model =
             ( { model | liferayVersion = newLiferayVersion }, Cmd.none )
 
         UpdateProjectGroupId newProjectGroupId ->
-            ( { model | projectGroupId = newProjectGroupId }, Cmd.none )
+            let
+                newGroupId =
+                    if String.isEmpty newProjectGroupId then
+                        "org.acme"
+
+                    else
+                        newProjectGroupId
+            in
+            ( { model | projectGroupId = newGroupId }, Cmd.none )
 
         UpdateProjectArtifactId newArtifactId ->
             let
@@ -98,7 +106,15 @@ update msg model =
             ( { model | projectArtifactId = artifactId }, Cmd.none )
 
         UpdateProjectVersion newProjectVersion ->
-            ( { model | projectVersion = newProjectVersion }, Cmd.none )
+            let
+                newVersion =
+                    if String.isEmpty newProjectVersion then
+                        "1.0.0-SNAPSHOT"
+
+                    else
+                        newProjectVersion
+            in
+            ( { model | projectVersion = newVersion }, Cmd.none )
 
         UpdateSystem newSystem ->
             ( { model | system = newSystem }, Cmd.none )
@@ -247,7 +263,29 @@ viewOption tool =
 
 viewInputGroupId : Model -> Html Msg
 viewInputGroupId model =
-    div [ class "form-group" ]
+    let
+        hasError =
+            not (Regex.contains javaPackagePattern model.projectGroupId)
+
+        formGroupClassName =
+            if hasError then
+                "form-group has-error"
+
+            else
+                "form-group"
+
+        feedbackError =
+            if hasError then
+                div [ class "form-feedback-group" ]
+                    [ div [ class "form-feedback-item" ]
+                        [ text "Please enter a valid package name."
+                        ]
+                    ]
+
+            else
+                text ""
+    in
+    div [ class formGroupClassName ]
         [ label [ for "groupId" ] [ text "Project Group ID" ]
         , input
             [ id "groupId"
@@ -257,6 +295,7 @@ viewInputGroupId model =
             , onInput UpdateProjectGroupId
             ]
             []
+        , feedbackError
         ]
 
 
@@ -277,7 +316,29 @@ viewInputArtifactId model =
 
 viewInputProjectVersion : Model -> Html Msg
 viewInputProjectVersion model =
-    div [ class "form-group" ]
+    let
+        hasError =
+            not (Regex.contains semverPattern model.projectVersion)
+
+        formGroupClassName =
+            if hasError then
+                "form-group has-error"
+
+            else
+                "form-group"
+
+        feedbackError =
+            if hasError then
+                div [ class "form-feedback-group" ]
+                    [ div [ class "form-feedback-item" ]
+                        [ text "Please enter a valid version."
+                        ]
+                    ]
+
+            else
+                text ""
+    in
+    div [ class formGroupClassName ]
         [ label [ for "projectVersion" ] [ text "Project Version" ]
         , input
             [ id "projectVersion"
@@ -287,6 +348,7 @@ viewInputProjectVersion model =
             , onInput UpdateProjectVersion
             ]
             []
+        , feedbackError
         ]
 
 
@@ -487,6 +549,18 @@ getSystemFromPlatform platform =
 
     else
         Unix
+
+
+javaPackagePattern : Regex.Regex
+javaPackagePattern =
+    Regex.fromString "^(?:\\w+|\\w+\\.\\w+)+$"
+        |> Maybe.withDefault Regex.never
+
+
+semverPattern : Regex.Regex
+semverPattern =
+    Regex.fromString "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+        |> Maybe.withDefault Regex.never
 
 
 toKebabCase : String -> String -> String

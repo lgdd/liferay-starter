@@ -34,7 +34,7 @@ pre {
     background: #eee;
     padding: 1.2rem;
     border-radius: 0.25rem;
-    color: #E83E8C;
+    color: #c22484;
     white-space: pre-wrap;
 }
 
@@ -117,6 +117,18 @@ body.dark {
     color: #eee;
 }
 
+.dark .form-group.has-error input.form-control {
+    background-color: #934040;
+    border-color: #f48989;
+    box-shadow: 0 0 rgba(0, 0, 0, 0);
+    color: #eee;
+}
+
+.dark .has-error .form-feedback-item {
+    color: #fb7f7f;
+}
+
 .dark pre {
     background: #19202a;
+    color: #ff25a9;
 }
