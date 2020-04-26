@@ -9,17 +9,12 @@
     height: inherit;
 }
 
-.theme-switch {
-    position: absolute;
-    right: 1em;
-}
-
 body {
     background: white;
 }
 
 main {
-    min-height: calc(100vh - 70px);
+    min-height: calc(100vh - 200px);
 }
 
 footer {
@@ -42,7 +37,12 @@ code::before {
     content: "$ "
 }
 
-.gh-btn-list span {
+nav .container-form-lg {
+    padding-bottom: 0;
+    padding-top: 1.5rem;
+}
+
+.gh-btn-list span:not(:first-child) {
     margin-left: 10px;
 }
 

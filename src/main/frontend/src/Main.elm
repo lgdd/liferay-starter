@@ -1,7 +1,7 @@
 port module Main exposing (..)
 
 import Browser
-import Html exposing (Html, a, button, code, div, footer, h1, h2, i, input, label, li, node, option, p, pre, select, span, text, ul)
+import Html exposing (Html, a, button, code, div, footer, h1, h2, i, input, label, li, nav, node, option, p, pre, select, span, text, ul)
 import Html.Attributes exposing (attribute, class, for, href, id, target, title, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Regex
@@ -136,13 +136,12 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ node "main"
+        [ viewHeader
+        , viewGithubButtons
+        , node "main"
             [ attribute "role" "main" ]
-            [ div [ class "container-fluid container-fluid-max-lg container-form-lg" ]
-                [ viewThemeSwitch
-                , viewHeader
-                , viewGithubButtons
-                , div [ class "row" ]
+            [ div [ class "container-fluid container-fluid-max-lg" ]
+                [ div [ class "row" ]
                     [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "Configure" ] ] ]
                 , div [ class "row" ]
                     [ div [ class "col-md" ] [ viewSelectTool ]
@@ -185,7 +184,7 @@ view model =
 
 viewThemeSwitch : Html Msg
 viewThemeSwitch =
-    div [ class "theme-switch" ]
+    div []
         [ label [ class "toggle-switch" ]
             [ input [ class "toggle-switch-check", type_ "checkbox", onInput ToggleDark ] []
             , span [ class "toggle-switch-bar" ]
@@ -208,33 +207,34 @@ viewThemeSwitch =
 
 viewHeader : Html Msg
 viewHeader =
-    div [ class "row" ]
-        [ div [ class "col-md" ]
-            [ h1 [ class "mb-3 text-center" ] [ text "Liferay Starter" ] ]
+    nav [ class "nav navbar" ]
+        [ div [ class "container-fluid container-fluid-max-lg container-form-lg" ]
+            [ h1 [] [ text "Liferay Starter" ]
+            , i [] [ text "No plugin or tool required. Choose your favorite IDE and get ready to code." ]
+            , viewThemeSwitch
+            ]
         ]
 
 
 viewGithubButtons : Html Msg
 viewGithubButtons =
-    div [ class "row" ]
-        [ div [ class "col-md mb-4 text-center gh-btn-list" ]
-            [ a
-                [ class "github-button"
-                , href "https://github.com/lgdd/liferay-starter"
-                , attribute "data-icon" "octicon-star"
-                , attribute "data-show-count" "true"
-                , attribute "aria-label" "Star lgdd/liferay-starter on GitHub"
-                ]
-                [ text "Star" ]
-            , a
-                [ class "ml-4 github-button"
-                , href "https://github.com/lgdd/liferay-starter/fork"
-                , attribute "data-icon" "octicon-repo-forked"
-                , attribute "data-show-count" "true"
-                , attribute "aria-label" "Fork lgdd/liferay-starter on GitHub"
-                ]
-                [ text "Fork" ]
+    div [ class "container-fluid container-fluid-max-lg gh-btn-list mb-4" ]
+        [ a
+            [ class "github-button"
+            , href "https://github.com/lgdd/liferay-starter"
+            , attribute "data-icon" "octicon-star"
+            , attribute "data-show-count" "true"
+            , attribute "aria-label" "Star lgdd/liferay-starter on GitHub"
             ]
+            [ text "Star" ]
+        , a
+            [ class "ml-4 github-button"
+            , href "https://github.com/lgdd/liferay-starter/fork"
+            , attribute "data-icon" "octicon-repo-forked"
+            , attribute "data-show-count" "true"
+            , attribute "aria-label" "Fork lgdd/liferay-starter on GitHub"
+            ]
+            [ text "Fork" ]
         ]
 
 
