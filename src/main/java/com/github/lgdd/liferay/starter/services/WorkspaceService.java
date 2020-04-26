@@ -1,25 +1,23 @@
 package com.github.lgdd.liferay.starter.services;
 
-import com.github.lgdd.liferay.starter.utils.ArchiveUtil;
-import org.apache.commons.compress.utils.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Singleton
-public class WorkspaceCreator {
+public class WorkspaceService {
+
+    @Inject
+    ArchiveService archiveService;
 
     public byte[] createWorkspaceZip(String tool, String version,
                                      String projectGroupId,
@@ -47,12 +45,14 @@ public class WorkspaceCreator {
         if ("maven".equalsIgnoreCase(tool))
             updatePomFiles(workspacePath, projectGroupId, projectArtifactId, projectVersion);
 
-        ArchiveUtil.compressZipfile(workspacePath.toAbsolutePath().toString(), baos);
+        archiveService.compressZipfile(workspacePath.toAbsolutePath().toString(), baos);
 
         Files.walk(buildPath)
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .forEach(File::delete);
+
+        process.destroy();
 
         return baos.toByteArray();
     }

@@ -1,6 +1,7 @@
 package com.github.lgdd.liferay.starter;
 
-import com.github.lgdd.liferay.starter.services.WorkspaceCreator;
+import com.github.lgdd.liferay.starter.services.ArchiveService;
+import com.github.lgdd.liferay.starter.services.WorkspaceService;
 import org.eclipse.microprofile.health.*;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,19 +11,22 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class LiferayStarterHealthCheck implements HealthCheck {
 
-	@Inject
-	private WorkspaceCreator workspaceCreator;
+    @Inject
+    WorkspaceService workspaceService;
 
-	@Override
-	public HealthCheckResponse call() {
+    @Inject
+    ArchiveService archiveService;
 
-		HealthCheckResponseBuilder responseBuilder =
-										HealthCheckResponse.named("Liferay Starter Health Check");
-		if(workspaceCreator != null) {
-			responseBuilder.up();
-		} else {
-			responseBuilder.down();
-		}
-		return responseBuilder.build();
-	}
+    @Override
+    public HealthCheckResponse call() {
+
+        HealthCheckResponseBuilder responseBuilder =
+                HealthCheckResponse.named("Liferay Starter Health Check");
+        if (workspaceService != null && archiveService != null) {
+            responseBuilder.up();
+        } else {
+            responseBuilder.down();
+        }
+        return responseBuilder.build();
+    }
 }
