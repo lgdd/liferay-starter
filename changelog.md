@@ -1,4 +1,18 @@
 # Changelog
+## [1.2.0] - 2020-04-26
+### Added
+- Project group ID & version validation (backend)
+- Feedback validation for project group ID & version (frontend)
+### Changed
+- Archive static class & methods to standard service
+
+## [1.1.0] - 2020-04-24
+### Added
+- Windows command
+- Auto-select platform for init command
+### Removed
+- Unused bootstrap.js
+
 ## [1.0.0] - 2020-04-22
 ### Added
 - Build tool option
