@@ -454,10 +454,10 @@ getZipFileName model =
 getDownloadWorkspaceUrl : Model -> String
 getDownloadWorkspaceUrl model =
     model.apiHost
-        ++ "/api/workspace/"
-        ++ model.tool
-        ++ "/"
+        ++ "/api/liferay/"
         ++ model.liferayVersion
+        ++ "/workspace/"
+        ++ model.tool
         ++ "?projectGroupId="
         ++ model.projectGroupId
         ++ "&projectArtifactId="

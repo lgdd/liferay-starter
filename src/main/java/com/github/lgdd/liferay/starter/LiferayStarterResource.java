@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@Path("/api")
+@Path("/api/liferay")
 public class LiferayStarterResource {
 
     private static final Logger log = LoggerFactory.getLogger(LiferayStarterResource.class);
@@ -27,7 +27,7 @@ public class LiferayStarterResource {
     WorkspaceService workspaceService;
 
     @GET
-    @Path("/workspace/{tool}/{version}")
+    @Path("/{version}/workspace/{tool}")
     @Produces("application/zip")
     public Response workspace(@PathParam String tool, @PathParam String version,
                               @QueryParam("projectGroupId") String projectGroupId,
