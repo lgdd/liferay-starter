@@ -210,7 +210,7 @@ viewHeader =
     nav [ class "nav navbar" ]
         [ div [ class "container-fluid container-fluid-max-lg container-form-lg" ]
             [ h1 [] [ text "Liferay Starter" ]
-            , i [] [ text "No plugin or tool required. Choose your favorite IDE and get ready to code." ]
+            , i [ class "d-none d-md-block" ] [ text "No plugin or tool required. Choose your favorite IDE and get ready to code." ]
             , viewThemeSwitch
             ]
         ]
