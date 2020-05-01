@@ -136,8 +136,9 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewHeader
-        , viewGithubButtons
+        [ viewThemeSwitch
+        , viewHeader
+        , viewHeaderSubtitle
         , node "main"
             [ attribute "role" "main" ]
             [ div [ class "container-fluid container-fluid-max-lg" ]
@@ -210,15 +211,18 @@ viewHeader =
     nav [ class "nav navbar" ]
         [ div [ class "container-fluid container-fluid-max-lg container-form-lg" ]
             [ h1 [] [ text "Liferay Starter" ]
-            , i [ class "d-none d-md-block" ] [ text "No plugin or tool required. Choose your favorite IDE and get ready to code." ]
-            , viewThemeSwitch
+            , viewGithubButtons
             ]
         ]
 
 
+viewHeaderSubtitle =
+    div [ class "container-fluid container-fluid-max-lg mb-4" ] [ i [ class "d-none d-md-block" ] [ text "No plugin or tool required. Choose your favorite IDE and get ready to code." ] ]
+
+
 viewGithubButtons : Html Msg
 viewGithubButtons =
-    div [ class "container-fluid container-fluid-max-lg gh-btn-list mb-4" ]
+    span [ class "gh-btn-list" ]
         [ a
             [ class "github-button"
             , href "https://github.com/lgdd/liferay-starter"

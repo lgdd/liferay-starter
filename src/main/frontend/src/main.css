@@ -42,8 +42,18 @@ nav .container-form-lg {
     padding-top: 1.5rem;
 }
 
+.navbar {
+    padding: 0;
+}
+
 .gh-btn-list span:not(:first-child) {
     margin-left: 10px;
+}
+
+.toggle-switch {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
 }
 
 #copy-cmd {
