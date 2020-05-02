@@ -4,6 +4,9 @@ dev:
 devFront:
 	cd src/main/frontend && yarn start
 
+build:
+	./mvnw clean package
+
 dockerBuild:
 	./mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=latest-jvm
 

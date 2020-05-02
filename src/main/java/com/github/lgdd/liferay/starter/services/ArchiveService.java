@@ -11,13 +11,18 @@ import java.util.zip.ZipOutputStream;
 public class ArchiveService {
 
     public void compressZipfile(String sourceDir, OutputStream os) throws IOException {
-        ZipOutputStream zos = new ZipOutputStream(os);
+        var zos = new ZipOutputStream(os);
         compressDirectoryToZipfile(sourceDir, sourceDir, zos);
         IOUtils.closeQuietly(zos);
     }
 
-    private void compressDirectoryToZipfile(String rootDir, String sourceDir, ZipOutputStream out) throws IOException, FileNotFoundException {
-        File[] fileList = new File(sourceDir).listFiles();
+    private void compressDirectoryToZipfile(String rootDir, String sourceDir, ZipOutputStream out) throws IOException {
+        var fileList = new File(sourceDir).listFiles();
+
+        if (fileList == null) {
+            throw new FileNotFoundException();
+        }
+
         if (fileList.length == 0) { // empty directory / empty folder
             ZipEntry entry = new ZipEntry(sourceDir.replace(rootDir, "") + "/");
             out.putNextEntry(entry);

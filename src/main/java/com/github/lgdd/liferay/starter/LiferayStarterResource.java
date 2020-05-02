@@ -12,7 +12,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 @Path("/api/liferay")
@@ -39,10 +38,10 @@ public class LiferayStarterResource {
         }
 
         try {
-            byte[] workspaceZip = workspaceService
+            var workspaceZip = workspaceService
                     .createWorkspaceZip(tool, version, projectGroupId, projectArtifactId, projectVersion);
 
-            String filename = projectArtifactId.isEmpty() ?
+            var filename = projectArtifactId.isEmpty() ?
                     workspaceService.getWorkspaceName(tool, version) : projectArtifactId;
 
             Response.ResponseBuilder responseBuilder = Response.ok(workspaceZip);
@@ -56,7 +55,7 @@ public class LiferayStarterResource {
     }
 
     private boolean validateWorkspaceParams(String tool, String version, String projectGroupId, String projectArtifactId, String projectVersion) {
-        List<String> liferayVersions = Arrays.asList("7.3", "7.2", "7.1", "7.0");
+        var liferayVersions = Arrays.asList("7.3", "7.2", "7.1", "7.0");
         if (!("gradle".equalsIgnoreCase(tool) || "maven".equalsIgnoreCase(tool))) {
             return false;
         }
