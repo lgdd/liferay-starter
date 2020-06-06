@@ -8,23 +8,20 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "yarn elm-app build",
-    "start": "yarn elm-app start",
-    "make": "elm make",
+    "build": "npx elm-app build",
+    "start": "npx elm-app start",
+    "make": "elm make src/Main.elm",
     "repl": "elm repl",
     "reactor": "elm reactor",
-    "test": "yarn elm-app test",
-    "elm-app": "./node_modules/.bin/elm-app",
-    "install": "yarn elm-app install",
-    "eject": "yarn elm-app eject",
-    "format": "./node_modules/.bin/elm-format src/ --yes"
+    "test": "npx elm-app test",
+    "install:elm": "npx elm-app install",
+    "eject": "npx elm-app eject",
+    "format": "npx elm-format src/ --yes"
   },
   "license": "MIT",
   "devDependencies": {
-    "create-elm-app": "^4.2.8",
+    "create-elm-app": "^4.2.23",
     "elm-format": "^0.8.3"
   },
-  "dependencies": {
-    "js-file-downloader": "^1.1.6"
-  }
+  "dependencies": {}
 }

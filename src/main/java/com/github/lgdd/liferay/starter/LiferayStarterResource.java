@@ -1,17 +1,21 @@
 package com.github.lgdd.liferay.starter;
 
+import com.github.lgdd.liferay.starter.domain.LiferayApp;
+import com.github.lgdd.liferay.starter.domain.LiferayAppTemplate;
+import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.services.WorkspaceService;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Path("/api/liferay")
@@ -25,24 +29,44 @@ public class LiferayStarterResource {
     @Inject
     WorkspaceService workspaceService;
 
-    @GET
-    @Path("/{version}/workspace/{tool}")
-    @Produces("application/zip")
-    public Response workspace(@PathParam String tool, @PathParam String version,
-                              @QueryParam("projectGroupId") String projectGroupId,
-                              @QueryParam("projectArtifactId") String projectArtifactId,
-                              @QueryParam("projectVersion") String projectVersion) {
+    @POST
+    @Path("/test")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response test(List<LiferayApp> modules) {
 
-        if (!validateWorkspaceParams(tool, version, projectGroupId, projectArtifactId, projectVersion)) {
+        return Response.ok(modules).build();
+    }
+
+    @GET
+    @Path("/templates/java")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response javaTemplates() {
+        Map<String, String> templates = new HashMap<>();
+
+        for (LiferayAppTemplate template : LiferayAppTemplate.values()) {
+            templates.put(template.toString(), template.getName());
+        }
+
+        return Response.ok(templates).build();
+    }
+
+    @POST
+    @Path("/{version}/workspace/{tool}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("application/zip")
+    public Response workspace(@PathParam String tool, @PathParam String version, LiferayWorkspace workspace) {
+
+        if (!validateWorkspaceParams(tool, version, workspace)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         try {
             var workspaceZip = workspaceService
-                    .createWorkspaceZip(tool, version, projectGroupId, projectArtifactId, projectVersion);
+                    .createWorkspaceZip(tool, version, workspace);
 
-            var filename = projectArtifactId.isEmpty() ?
-                    workspaceService.getWorkspaceName(tool, version) : projectArtifactId;
+            var filename = workspace.getProjectArtifactId().isEmpty() ?
+                    workspaceService.getWorkspaceName(tool, version) : workspace.getProjectArtifactId();
 
             Response.ResponseBuilder responseBuilder = Response.ok(workspaceZip);
             responseBuilder.type("application/zip");
@@ -54,7 +78,10 @@ public class LiferayStarterResource {
         }
     }
 
-    private boolean validateWorkspaceParams(String tool, String version, String projectGroupId, String projectArtifactId, String projectVersion) {
+    private boolean validateWorkspaceParams(String tool, String version, LiferayWorkspace workspace) {
+        var projectGroupId = workspace.getProjectGroupId();
+        var projectArtifactId = workspace.getProjectArtifactId();
+        var projectVersion = workspace.getProjectVersion();
         var liferayVersions = Arrays.asList("7.3", "7.2", "7.1", "7.0");
         if (!("gradle".equalsIgnoreCase(tool) || "maven".equalsIgnoreCase(tool))) {
             return false;
@@ -70,5 +97,6 @@ public class LiferayStarterResource {
         }
         return projectArtifactId != null;
     }
+
 
 }

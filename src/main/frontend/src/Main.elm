@@ -1,9 +1,12 @@
 port module Main exposing (..)
 
+import Array
 import Browser
-import Html exposing (Html, a, button, code, div, footer, h1, h2, i, input, label, li, nav, node, option, p, pre, select, span, text, ul)
+import Dict exposing (Dict)
+import Html exposing (Html, a, button, code, div, footer, h1, h2, header, i, input, label, li, node, option, p, pre, select, span, text, ul)
 import Html.Attributes exposing (attribute, class, for, href, id, target, title, type_, value)
 import Html.Events exposing (onClick, onInput)
+import Json.Encode as JsonEncode
 import Regex
 
 
@@ -14,13 +17,34 @@ import Regex
 type alias Model =
     { apiHost : String
     , system : System
-    , tool : String
+    , count : Int
+    , workspace : LiferayWorkspace
+    }
+
+
+type alias LiferayWorkspace =
+    { tool : String
+    , wrapper : String
     , liferayVersion : String
-    , toolWrapper : String
     , projectGroupId : String
     , projectArtifactId : String
     , projectVersion : String
+    , apps : Dict Int LiferayApp
     }
+
+
+type alias LiferayApp =
+    { id : Int
+    , name : String
+    , template : Maybe String
+    , appType : LiferayAppType
+    }
+
+
+type LiferayAppType
+    = Java
+    | JavaScript
+    | Theme
 
 
 type System
@@ -38,20 +62,36 @@ versions =
     [ "7.3", "7.2", "7.1", "7.0" ]
 
 
+javaTemplates : List String
+javaTemplates =
+    [ "mvc-portlet", "service-builder", "rest", "panel-app", "api" ]
+
+
+javaScriptTemplates : List String
+javaScriptTemplates =
+    [ "react", "vue", "angular" ]
+
+
 type alias Flags =
-    { apiHost : String, platform : String }
+    { apiHost : String
+    , platform : String
+    }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { apiHost = flags.apiHost
       , system = getSystemFromPlatform flags.platform
-      , tool = "gradle"
-      , liferayVersion = "7.3"
-      , toolWrapper = "gradlew"
-      , projectGroupId = "org.acme"
-      , projectArtifactId = "liferay-project"
-      , projectVersion = "1.0.0-SNAPSHOT"
+      , count = 0
+      , workspace =
+            { tool = getDefaultTool
+            , wrapper = getToolWrapper getDefaultTool
+            , liferayVersion = getDefaultVersion
+            , projectGroupId = "org.acme"
+            , projectArtifactId = "liferay-project"
+            , projectVersion = "1.0.0-SNAPSHOT"
+            , apps = Dict.fromList []
+            }
       }
     , initTheme ()
     )
@@ -71,21 +111,34 @@ type Msg
     | DownloadWorkspace
     | ToggleDark String
     | CopyToClipboard String
+    | AddApp LiferayAppType
+    | UpdateAppName LiferayApp String
+    | UpdateAppTemplate LiferayApp String
+    | RemoveApp LiferayApp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateTool newTool ->
-            ( { model
-                | tool = newTool
-                , toolWrapper = getToolWrapper newTool
-              }
-            , Cmd.none
-            )
+            let
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | tool = newTool, wrapper = getToolWrapper newTool }
+            in
+            ( { model | workspace = newWorkspace }, Cmd.none )
 
         UpdateLiferayVersion newLiferayVersion ->
-            ( { model | liferayVersion = newLiferayVersion }, Cmd.none )
+            let
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | liferayVersion = newLiferayVersion }
+            in
+            ( { model | workspace = newWorkspace }, Cmd.none )
 
         UpdateProjectGroupId newProjectGroupId ->
             let
@@ -95,15 +148,27 @@ update msg model =
 
                     else
                         newProjectGroupId
+
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | projectGroupId = newGroupId }
             in
-            ( { model | projectGroupId = newGroupId }, Cmd.none )
+            ( { model | workspace = newWorkspace }, Cmd.none )
 
         UpdateProjectArtifactId newArtifactId ->
             let
                 artifactId =
                     toKebabCase newArtifactId "liferay-project"
+
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | projectArtifactId = artifactId }
             in
-            ( { model | projectArtifactId = artifactId }, Cmd.none )
+            ( { model | workspace = newWorkspace }, Cmd.none )
 
         UpdateProjectVersion newProjectVersion ->
             let
@@ -113,14 +178,115 @@ update msg model =
 
                     else
                         newProjectVersion
+
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | projectVersion = newVersion }
             in
-            ( { model | projectVersion = newVersion }, Cmd.none )
+            ( { model | workspace = newWorkspace }, Cmd.none )
 
         UpdateSystem newSystem ->
             ( { model | system = newSystem }, Cmd.none )
 
+        AddApp appType ->
+            let
+                newId =
+                    model.count + 1
+
+                newJavaApp : LiferayApp
+                newJavaApp =
+                    case appType of
+                        Java ->
+                            { id = newId
+                            , name = getDefaultAppName getDefaultJavaTemplate
+                            , template = getDefaultJavaTemplate
+                            , appType = Java
+                            }
+
+                        JavaScript ->
+                            { id = newId
+                            , name = getDefaultAppName getDefaultJavaScriptTemplate
+                            , template = getDefaultJavaScriptTemplate
+                            , appType = JavaScript
+                            }
+
+                        Theme ->
+                            { id = newId
+                            , name = getDefaultAppName Nothing
+                            , template = Nothing
+                            , appType = Theme
+                            }
+
+                newApps =
+                    Dict.insert newId newJavaApp model.workspace.apps
+
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | apps = newApps }
+            in
+            ( { model | workspace = newWorkspace, count = newId }, Cmd.none )
+
+        UpdateAppName app newName ->
+            let
+                newFormattedName =
+                    toKebabCase newName app.name
+
+                newApp =
+                    { app | name = newFormattedName }
+
+                newApps =
+                    Dict.update app.id (Maybe.map (\_ -> newApp)) model.workspace.apps
+
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | apps = newApps }
+            in
+            ( { model | workspace = newWorkspace }, Cmd.none )
+
+        UpdateAppTemplate app newTemplate ->
+            let
+                newName =
+                    if app.name == getDefaultAppName app.template then
+                        getDefaultAppName (Just newTemplate)
+
+                    else
+                        app.name
+
+                newApp =
+                    { app | template = Just newTemplate, name = newName }
+
+                newApps =
+                    Dict.update app.id (Maybe.map (\_ -> newApp)) model.workspace.apps
+
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | apps = newApps }
+            in
+            ( { model | workspace = newWorkspace }, Cmd.none )
+
+        RemoveApp toRemoveApp ->
+            let
+                newApps =
+                    Dict.remove toRemoveApp.id model.workspace.apps
+
+                workspace =
+                    model.workspace
+
+                newWorkspace =
+                    { workspace | apps = newApps }
+            in
+            ( { model | workspace = newWorkspace }, Cmd.none )
+
         DownloadWorkspace ->
-            ( model, downloadWorkspace (getDownloadWorkspaceUrl model) )
+            ( model, downloadWorkspace (getDownloadWorkspaceData model) )
 
         ToggleDark _ ->
             ( model, toggleDark () )
@@ -136,39 +302,13 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewThemeSwitch
-        , viewHeader
-        , viewHeaderSubtitle
+        [ viewHeader
         , node "main"
             [ attribute "role" "main" ]
-            [ div [ class "container-fluid container-fluid-max-lg" ]
+            [ div [ class "container-fluid container-fluid-max-xl" ]
                 [ div [ class "row" ]
-                    [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "Configure" ] ] ]
-                , div [ class "row" ]
-                    [ div [ class "col-md" ] [ viewSelectTool ]
-                    , div [ class "col-md" ] [ viewSelectLiferayVersion ]
-                    ]
-                , div [ class "row" ]
-                    [ div [ class "col-md" ] [ viewInputGroupId model ]
-                    , div [ class "col-md" ] [ viewInputArtifactId model ]
-                    , div [ class "col-md" ] [ viewInputProjectVersion model ]
-                    ]
-                , div [ class "row" ]
-                    [ div [ class "col-md" ]
-                        [ div [ class "form-group" ]
-                            [ button [ id "downloadWorkspace", class "btn btn-primary", onClick DownloadWorkspace ]
-                                [ text "Generate your workspace"
-                                ]
-                            ]
-                        ]
-                    ]
-                , div [ class "row" ]
-                    [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "What now?" ] ] ]
-                , div [ class "row" ]
-                    [ div [ class "col-md" ]
-                        [ p [] [ text "Unzip your workspace and intialize your Liferay bundle:" ]
-                        , viewInitCmd model
-                        ]
+                    [ viewWorkspaceConfig model
+                    , viewAppsConfig model
                     ]
                 ]
             ]
@@ -208,16 +348,150 @@ viewThemeSwitch =
 
 viewHeader : Html Msg
 viewHeader =
-    nav [ class "nav navbar" ]
-        [ div [ class "container-fluid container-fluid-max-lg container-form-lg" ]
-            [ h1 [] [ text "Liferay Starter" ]
-            , viewGithubButtons
+    header [ class "container-fluid container-fluid-max-xl container-form-lg" ]
+        [ div [ class "row" ]
+            [ div [ class "col-3" ] [ h1 [] [ text "Liferay Starter" ] ]
+            , div [ class "col-1" ] [ viewThemeSwitch ]
+            , div [ class "col" ] [ viewGithubButtons ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col" ]
+                [ i [ class "d-none d-md-block" ]
+                    [ p [] [ text "No plugin or tool required." ]
+                    , p [] [ text "Choose your favorite IDE and get ready to code." ]
+                    ]
+                ]
             ]
         ]
 
 
-viewHeaderSubtitle =
-    div [ class "container-fluid container-fluid-max-lg mb-4" ] [ i [ class "d-none d-md-block" ] [ text "No plugin or tool required. Choose your favorite IDE and get ready to code." ] ]
+viewWorkspaceConfig : Model -> Html Msg
+viewWorkspaceConfig model =
+    div [ class "col" ]
+        [ div [ class "row" ]
+            [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "Workspace" ] ] ]
+        , div [ class "row" ]
+            [ div [ class "col-md" ] [ viewSelectTool ]
+            , div [ class "col-md" ] [ viewSelectLiferayVersion ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-md" ] [ viewInputGroupId model ]
+            , div [ class "col-md" ] [ viewInputArtifactId model ]
+            , div [ class "col-md" ] [ viewInputProjectVersion model ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-md" ]
+                [ div [ class "form-group" ]
+                    [ button [ id "downloadWorkspace", class "btn btn-primary", onClick DownloadWorkspace ]
+                        [ text "Generate your workspace"
+                        ]
+                    ]
+                ]
+            ]
+        , div [ class "row" ]
+            [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "What now?" ] ] ]
+        , div [ class "row" ]
+            [ div [ class "col-md" ]
+                [ p [] [ text "Unzip your workspace and intialize your Liferay bundle:" ]
+                , viewInitCmd model
+                ]
+            ]
+        ]
+
+
+viewAppsConfig : Model -> Html Msg
+viewAppsConfig model =
+    div [ class "col ml-5" ]
+        [ div [ class "row" ]
+            [ div [ class "col-md" ] [ h2 [ class "mb-4" ] [ text "Apps" ] ] ]
+        , div [ id "apps-buttons", class "row" ]
+            [ div [ class "col" ]
+                [ button
+                    [ class "btn btn-secondary"
+                    , onClick (AddApp Java)
+                    ]
+                    [ text "Add Java Module"
+                    ]
+                ]
+            , div [ class "col" ]
+                [ button
+                    [ class "btn btn-secondary"
+                    , onClick (AddApp JavaScript)
+                    ]
+                    [ text "Add JS Module"
+                    ]
+                ]
+            , div [ class "col" ]
+                [ button
+                    [ class "btn btn-secondary"
+                    , onClick (AddApp Theme)
+                    ]
+                    [ text "Add Theme"
+                    ]
+                ]
+            ]
+        , viewApps model
+        ]
+
+
+viewApps : Model -> Html Msg
+viewApps model =
+    div [] (Dict.values (Dict.map viewApp model.workspace.apps))
+
+
+viewApp : Int -> LiferayApp -> Html Msg
+viewApp id_ app =
+    let
+        templates =
+            case app.appType of
+                Java ->
+                    div [ class "col" ] [ viewJavaTemplates app ]
+
+                JavaScript ->
+                    div [ class "col" ] [ viewJavaScriptTemplates app ]
+
+                Theme ->
+                    text ""
+    in
+    div [ class "row" ]
+        [ div [ class "col" ]
+            [ div [ class "form-group" ]
+                [ input
+                    [ id ("app-" ++ String.fromInt id_)
+                    , class "form-control"
+                    , type_ "text"
+                    , value app.name
+                    , onInput (UpdateAppName app)
+                    ]
+                    []
+                ]
+            ]
+        , templates
+        , div [ class "col" ]
+            [ button
+                [ class "btn btn-danger"
+                , onClick (RemoveApp app)
+                ]
+                [ text "Remove"
+                ]
+            ]
+        ]
+
+
+viewJavaTemplates : LiferayApp -> Html Msg
+viewJavaTemplates app =
+    div [ class "form-group" ]
+        [ select [ id "selectLiferayVersion", class "form-control", onInput (UpdateAppTemplate app) ]
+            (List.map viewOption javaTemplates)
+        ]
+
+
+viewJavaScriptTemplates : LiferayApp -> Html Msg
+viewJavaScriptTemplates app =
+    div [ class "form-group" ]
+        [ select [ id "selectLiferayVersion", class "form-control", onInput (UpdateAppTemplate app) ]
+            (List.map viewOption javaScriptTemplates)
+        ]
 
 
 viewGithubButtons : Html Msg
@@ -269,7 +543,7 @@ viewInputGroupId : Model -> Html Msg
 viewInputGroupId model =
     let
         hasError =
-            not (Regex.contains javaPackagePattern model.projectGroupId)
+            not (Regex.contains javaPackagePattern model.workspace.projectGroupId)
 
         formGroupClassName =
             if hasError then
@@ -295,7 +569,7 @@ viewInputGroupId model =
             [ id "groupId"
             , class "form-control"
             , type_ "text"
-            , value model.projectGroupId
+            , value model.workspace.projectGroupId
             , onInput UpdateProjectGroupId
             ]
             []
@@ -311,7 +585,7 @@ viewInputArtifactId model =
             [ id "artifactId"
             , class "form-control"
             , type_ "text"
-            , value model.projectArtifactId
+            , value model.workspace.projectArtifactId
             , onInput UpdateProjectArtifactId
             ]
             []
@@ -322,7 +596,7 @@ viewInputProjectVersion : Model -> Html Msg
 viewInputProjectVersion model =
     let
         hasError =
-            not (Regex.contains semverPattern model.projectVersion)
+            not (Regex.contains semverPattern model.workspace.projectVersion)
 
         formGroupClassName =
             if hasError then
@@ -348,7 +622,7 @@ viewInputProjectVersion model =
             [ id "projectVersion"
             , class "form-control"
             , type_ "text"
-            , value model.projectVersion
+            , value model.workspace.projectVersion
             , onInput UpdateProjectVersion
             ]
             []
@@ -437,6 +711,99 @@ viewInitCmdPanels model =
         ]
 
 
+getDownloadWorkspaceData : Model -> JsonEncode.Value
+getDownloadWorkspaceData model =
+    let
+        url =
+            getDownloadWorkspaceUrl model
+    in
+    JsonEncode.object
+        [ ( "url", JsonEncode.string url )
+        , ( "workspace"
+          , JsonEncode.object
+                [ ( "projectGroupId", JsonEncode.string model.workspace.projectGroupId )
+                , ( "projectArtifactId", JsonEncode.string model.workspace.projectArtifactId )
+                , ( "projectVersion", JsonEncode.string model.workspace.projectVersion )
+                , ( "apps", formatAppsToJson model.workspace.apps )
+                ]
+          )
+        ]
+
+
+formatAppsToJson : Dict Int LiferayApp -> JsonEncode.Value
+formatAppsToJson apps =
+    JsonEncode.list formatAppToJson (Dict.toList apps)
+
+
+formatAppToJson : ( Int, LiferayApp ) -> JsonEncode.Value
+formatAppToJson ( id, app ) =
+    JsonEncode.object
+        [ ( "uuid", JsonEncode.int id )
+        , ( "name", JsonEncode.string app.name )
+        , ( "type", JsonEncode.string (formatAppType app.appType) )
+        , ( "template", JsonEncode.string (formatAppTemplate (Maybe.withDefault "theme" app.template)) )
+        ]
+
+
+formatAppTemplate : String -> String
+formatAppTemplate template =
+    String.toUpper template
+        |> userReplace "-" (\_ -> "_")
+
+
+formatAppType : LiferayAppType -> String
+formatAppType appType =
+    case appType of
+        Java ->
+            "JAVA"
+
+        JavaScript ->
+            "JAVASCRIPT"
+
+        Theme ->
+            "THEME"
+
+
+userReplace : String -> (Regex.Match -> String) -> String -> String
+userReplace userRegex replacer string =
+    case Regex.fromString userRegex of
+        Nothing ->
+            string
+
+        Just regex ->
+            Regex.replace regex replacer string
+
+
+getDefaultJavaTemplate : Maybe String
+getDefaultJavaTemplate =
+    Array.get 0 (Array.fromList javaTemplates)
+
+
+getDefaultJavaScriptTemplate : Maybe String
+getDefaultJavaScriptTemplate =
+    Array.get 0 (Array.fromList javaScriptTemplates)
+
+
+getDefaultAppName : Maybe String -> String
+getDefaultAppName template =
+    case template of
+        Just name ->
+            "my-" ++ name
+
+        Nothing ->
+            "my-theme"
+
+
+getDefaultVersion : String
+getDefaultVersion =
+    Maybe.withDefault "gradle" (Array.get 0 (Array.fromList versions))
+
+
+getDefaultTool : String
+getDefaultTool =
+    String.toLower (Maybe.withDefault "gradle" (Array.get 0 (Array.fromList tools)))
+
+
 getToolWrapper : String -> String
 getToolWrapper tool =
     if tool == "gradle" then
@@ -448,26 +815,20 @@ getToolWrapper tool =
 
 getZipFileName : Model -> String
 getZipFileName model =
-    if model.projectArtifactId == "" then
-        model.tool ++ "-liferay-workspace-" ++ model.liferayVersion ++ ".zip"
+    if model.workspace.projectArtifactId == "" then
+        model.workspace.tool ++ "-liferay-workspace-" ++ model.workspace.liferayVersion ++ ".zip"
 
     else
-        model.projectArtifactId ++ ".zip"
+        model.workspace.projectArtifactId ++ ".zip"
 
 
 getDownloadWorkspaceUrl : Model -> String
 getDownloadWorkspaceUrl model =
     model.apiHost
         ++ "/api/liferay/"
-        ++ model.liferayVersion
+        ++ model.workspace.liferayVersion
         ++ "/workspace/"
-        ++ model.tool
-        ++ "?projectGroupId="
-        ++ model.projectGroupId
-        ++ "&projectArtifactId="
-        ++ model.projectArtifactId
-        ++ "&projectVersion="
-        ++ model.projectVersion
+        ++ model.workspace.tool
 
 
 getInitCmd : Model -> String
@@ -484,22 +845,22 @@ getInitCmdUnix : Model -> String
 getInitCmdUnix model =
     let
         initCmd =
-            if model.tool == "gradle" then
+            if model.workspace.tool == "gradle" then
                 "./gradlew initBundle"
 
             else
                 "./mvnw bundle-support:init"
     in
     "mkdir "
-        ++ model.projectArtifactId
+        ++ model.workspace.projectArtifactId
         ++ " && "
         ++ "cp "
         ++ getZipFileName model
         ++ " "
-        ++ model.projectArtifactId
+        ++ model.workspace.projectArtifactId
         ++ " && "
         ++ "cd "
-        ++ model.projectArtifactId
+        ++ model.workspace.projectArtifactId
         ++ " && "
         ++ "jar xvf "
         ++ getZipFileName model
@@ -507,31 +868,32 @@ getInitCmdUnix model =
         ++ "rm "
         ++ getZipFileName model
         ++ " && chmod +x "
-        ++ model.toolWrapper
+        ++ model.workspace.wrapper
         ++ " && "
         ++ initCmd
+        ++ getBuildDeployCmd model
 
 
 getInitCmdWindows : Model -> String
 getInitCmdWindows model =
     let
         initCmd =
-            if model.tool == "gradle" then
+            if model.workspace.tool == "gradle" then
                 "gradlew.bat initBundle"
 
             else
                 "mvnw.cmd bundle-support:init"
     in
     "mkdir "
-        ++ model.projectArtifactId
+        ++ model.workspace.projectArtifactId
         ++ " && "
         ++ "copy "
         ++ getZipFileName model
         ++ " "
-        ++ model.projectArtifactId
+        ++ model.workspace.projectArtifactId
         ++ " && "
         ++ "cd "
-        ++ model.projectArtifactId
+        ++ model.workspace.projectArtifactId
         ++ " && "
         ++ "jar xvf "
         ++ getZipFileName model
@@ -540,6 +902,18 @@ getInitCmdWindows model =
         ++ getZipFileName model
         ++ " && "
         ++ initCmd
+        ++ getBuildDeployCmd model
+
+
+getBuildDeployCmd model =
+    if Dict.isEmpty model.workspace.apps then
+        ""
+
+    else if model.workspace.tool == "gradle" then
+        " build deploy"
+
+    else
+        " package bundle-support:deploy"
 
 
 getSystemFromPlatform : String -> System
@@ -632,7 +1006,7 @@ port initTheme : () -> Cmd msg
 port copyToClipboard : String -> Cmd msg
 
 
-port downloadWorkspace : String -> Cmd msg
+port downloadWorkspace : JsonEncode.Value -> Cmd msg
 
 
 
