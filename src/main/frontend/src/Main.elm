@@ -69,7 +69,7 @@ javaTemplates =
 
 javaScriptTemplates : List String
 javaScriptTemplates =
-    [ "react", "vue", "angular" ]
+    [ "react", "vuejs", "angular", "vanilla" ]
 
 
 type alias Flags =

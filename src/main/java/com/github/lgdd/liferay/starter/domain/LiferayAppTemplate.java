@@ -8,8 +8,9 @@ public enum LiferayAppTemplate {
     THEME("theme"),
 
     REACT("react"),
-    VUE("vue"),
+    VUEJS("vuejs"),
     ANGULAR("angular"),
+    VANILLA("vanilla"),
 
     ACTIVATOR("activator"),
     API("api"),
