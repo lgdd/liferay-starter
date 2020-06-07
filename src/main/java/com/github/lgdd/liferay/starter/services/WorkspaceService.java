@@ -232,7 +232,7 @@ public class WorkspaceService {
 
         var content = Files.readString(pomPath, charset);
         content = content.replaceAll("" +
-                        "<groupId>" + projectArtifactId + "</groupId>",
+                        "<groupId>" + projectArtifactId.replaceAll("-",".") + "</groupId>",
                 "<groupId>" + projectGroupId + "</groupId>");
 
         content = content.replaceAll("" +
