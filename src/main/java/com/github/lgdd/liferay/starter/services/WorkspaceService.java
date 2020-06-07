@@ -139,6 +139,8 @@ public class WorkspaceService {
         }
 
         process.destroy();
+
+        addNpmrcFile(Path.of(baseWorkspace.resolve("modules").toAbsolutePath().toString(), app.getName()));
     }
 
     private void addTheme(LiferayApp app, String liferayVersion, Path baseWorkspace) throws Exception {
@@ -176,6 +178,8 @@ public class WorkspaceService {
         }
 
         process.destroy();
+
+        addNpmrcFile(Path.of(baseWorkspace.resolve("themes").toAbsolutePath().toString(), app.getName()));
     }
 
     public static void debugCommand(List<String> command) {
@@ -240,6 +244,16 @@ public class WorkspaceService {
                 "<version>" + projectVersion + "</version>");
 
         Files.write(pomPath, content.getBytes(charset));
+    }
+
+    private void addNpmrcFile(Path appPath) throws IOException {
+        var file = new File(appPath.toAbsolutePath().toString(), ".npmrc");
+        var charset = StandardCharsets.UTF_8;
+
+        if(file.createNewFile()) {
+            String content = "ignore-scripts=false";
+            Files.write(file.toPath(), content.getBytes(charset));
+        }
     }
 
 }
