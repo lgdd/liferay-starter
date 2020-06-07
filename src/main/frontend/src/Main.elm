@@ -195,8 +195,8 @@ update msg model =
                 newId =
                     model.count + 1
 
-                newJavaApp : LiferayApp
-                newJavaApp =
+                newApp : LiferayApp
+                newApp =
                     case appType of
                         Java ->
                             { id = newId
@@ -219,8 +219,22 @@ update msg model =
                             , appType = Theme
                             }
 
+                shouldUpdateAppName =
+                    not (Dict.values model.workspace.apps
+                        |> List.filter (\app -> app.name == newApp.name)
+                        |> List.isEmpty)
+
+                newAppName =
+                    if shouldUpdateAppName then
+                        newApp.name ++ "-" ++ String.fromInt newId
+                    else
+                        newApp.name
+
+                updatedNewApp =
+                    { newApp | name = newAppName}
+
                 newApps =
-                    Dict.insert newId newJavaApp model.workspace.apps
+                    Dict.insert newId updatedNewApp model.workspace.apps
 
                 workspace =
                     model.workspace
@@ -261,8 +275,22 @@ update msg model =
                 newApp =
                     { app | template = Just newTemplate, name = newName }
 
+                shouldUpdateAppName =
+                    not (Dict.values model.workspace.apps
+                        |> List.filter (\a -> a.name == newApp.name)
+                        |> List.isEmpty)
+
+                newAppName =
+                    if shouldUpdateAppName then
+                        newApp.name ++ "-" ++ String.fromInt newApp.id
+                    else
+                        newApp.name
+
+                updatedNewApp =
+                    { newApp | name = newAppName}
+
                 newApps =
-                    Dict.update app.id (Maybe.map (\_ -> newApp)) model.workspace.apps
+                    Dict.update app.id (Maybe.map (\_ -> updatedNewApp)) model.workspace.apps
 
                 workspace =
                     model.workspace
@@ -436,12 +464,33 @@ viewAppsConfig model =
 
 viewApps : Model -> Html Msg
 viewApps model =
-    div [] (Dict.values (Dict.map viewApp model.workspace.apps))
+    div [] (Dict.values (Dict.map (viewApp model) model.workspace.apps))
 
 
-viewApp : Int -> LiferayApp -> Html Msg
-viewApp id_ app =
+viewApp : Model -> Int -> LiferayApp -> Html Msg
+viewApp model id_ app =
     let
+        hasError =
+            appNameAlreadyUsed app.name model
+
+        formGroupClassName =
+            if hasError then
+                "form-group has-error"
+
+            else
+                "form-group"
+
+        feedbackError =
+            if hasError then
+                div [ class "form-feedback-group" ]
+                    [ div [ class "form-feedback-item" ]
+                        [ text "This name is already used."
+                        ]
+                    ]
+
+            else
+                text ""
+
         templates =
             case app.appType of
                 Java ->
@@ -455,7 +504,7 @@ viewApp id_ app =
     in
     div [ class "row" ]
         [ div [ class "col" ]
-            [ div [ class "form-group" ]
+            [ div [ class formGroupClassName ]
                 [ input
                     [ id ("app-" ++ String.fromInt id_)
                     , class "form-control"
@@ -464,6 +513,7 @@ viewApp id_ app =
                     , onInput (UpdateAppName app)
                     ]
                     []
+                , feedbackError
                 ]
             ]
         , templates
@@ -772,6 +822,13 @@ userReplace userRegex replacer string =
 
         Just regex ->
             Regex.replace regex replacer string
+
+
+appNameAlreadyUsed : String -> Model -> Bool
+appNameAlreadyUsed appName model =
+    (Dict.values model.workspace.apps
+    |> List.filter (\app -> app.name == appName)
+    |> List.length) > 1
 
 
 getDefaultJavaTemplate : Maybe String
