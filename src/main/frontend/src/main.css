@@ -9,17 +9,12 @@
     height: inherit;
 }
 
-.theme-switch {
-    position: absolute;
-    right: 1em;
-}
-
 body {
     background: white;
 }
 
 main {
-    min-height: calc(100vh - 70px);
+    min-height: calc(100vh - 200px);
 }
 
 footer {
@@ -42,8 +37,30 @@ code::before {
     content: "$ "
 }
 
-.gh-btn-list span {
+nav .container-form-lg {
+    padding-bottom: 0;
+    padding-top: 1.5rem;
+}
+
+header p {
+    margin-bottom: 0;
+}
+
+header.container-form-lg {
+    padding-top: 1rem;
+}
+
+.gh-btn-list {
+    float: right;
+    padding-top: .8rem;
+}
+
+.gh-btn-list span:not(:first-child) {
     margin-left: 10px;
+}
+
+.toggle-switch {
+    margin-top: .3rem;
 }
 
 #copy-cmd {
@@ -66,6 +83,12 @@ code::before {
     cursor: pointer;
 }
 
+
+#apps-buttons {
+    margin-top: 1.6rem;
+    margin-bottom: 1.6rem;
+}
+
 body.dark {
     background: #293544;
     color: #eee;
@@ -73,6 +96,17 @@ body.dark {
 
 .dark .btn.btn-primary {
     background-color: rgb(57, 117, 207);
+    border-color: rgb(57, 117, 207);
+}
+
+.dark .btn.btn-danger {
+    background-color: rgb(170, 40, 40);
+    border-color: rgb(170, 40, 40);
+}
+.dark .btn.btn-secondary {
+    background-color: rgb(221, 221, 221);
+    border-color: rgb(221, 221, 221);
+    color: #444444;
 }
 
 .dark #copy-cmd {

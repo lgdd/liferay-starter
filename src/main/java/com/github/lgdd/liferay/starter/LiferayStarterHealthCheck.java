@@ -20,8 +20,8 @@ public class LiferayStarterHealthCheck implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
 
-        HealthCheckResponseBuilder responseBuilder =
-                HealthCheckResponse.named("Liferay Starter Health Check");
+        var responseBuilder = HealthCheckResponse.named("Liferay Starter Health Check");
+
         if (workspaceService != null && archiveService != null) {
             responseBuilder.up();
         } else {

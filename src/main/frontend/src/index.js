@@ -1,7 +1,7 @@
 import './main.css';
 import {Elm} from './Main.elm';
 import * as serviceWorker from './serviceWorker';
-import Downloader from 'js-file-downloader';
+import Downloader from './js-file-downloader';
 
 const darkTheme = "dark";
 const apiHost = process.env.NODE_ENV === 'development' ? process.env.ELM_APP_API_HOST : "";
@@ -44,14 +44,16 @@ elmApp.ports.copyToClipboard.subscribe((containerId) => {
     document.execCommand("copy");
 });
 
-elmApp.ports.downloadWorkspace.subscribe((downloadUrl) => {
+elmApp.ports.downloadWorkspace.subscribe((data) => {
     const downloadBtn = document.querySelector("#downloadWorkspace");
     const downloadBtnText = downloadBtn.innerText;
     downloadBtn.disabled = true;
     downloadBtn.innerText = "Generating your workspace...";
     new Downloader({
-        url: downloadUrl,
-        autoStart: true
+        url: data.url,
+        method: 'POST',
+        autoStart: true,
+        body: JSON.stringify(data.workspace)
     }).then(function () {
         downloadBtn.innerText = downloadBtnText;
         downloadBtn.disabled = false;

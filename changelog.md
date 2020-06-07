@@ -1,4 +1,15 @@
 # Changelog
+## [2.0.0] - 2020-06-07
+### Added
+- Support to generate Liferay apps from templates (Java, JS, Theme) 
+- Header subtitle
+- SEO metadata description
+### Changed
+- Upgrade Quarkus to v1.4.1.Final
+- Dockerfiles with multi-stage builds
+- API design
+- Header layout
+
 ## [1.2.0] - 2020-04-26
 ### Added
 - Project group ID & version validation (backend)
