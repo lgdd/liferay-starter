@@ -6,7 +6,6 @@ import Dict exposing (Dict)
 import Html exposing (Html, a, button, code, div, footer, h1, h2, header, i, input, label, li, node, option, p, pre, select, span, text, ul)
 import Html.Attributes exposing (attribute, class, for, href, id, target, title, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Json.Encode as JsonEncode
 import Regex
 
 
@@ -220,18 +219,21 @@ update msg model =
                             }
 
                 shouldUpdateAppName =
-                    not (Dict.values model.workspace.apps
-                        |> List.filter (\app -> app.name == newApp.name)
-                        |> List.isEmpty)
+                    not
+                        (Dict.values model.workspace.apps
+                            |> List.filter (\app -> app.name == newApp.name)
+                            |> List.isEmpty
+                        )
 
                 newAppName =
                     if shouldUpdateAppName then
                         newApp.name ++ "-" ++ String.fromInt newId
+
                     else
                         newApp.name
 
                 updatedNewApp =
-                    { newApp | name = newAppName}
+                    { newApp | name = newAppName }
 
                 newApps =
                     Dict.insert newId updatedNewApp model.workspace.apps
@@ -276,18 +278,21 @@ update msg model =
                     { app | template = Just newTemplate, name = newName }
 
                 shouldUpdateAppName =
-                    not (Dict.values model.workspace.apps
-                        |> List.filter (\a -> a.name == newApp.name)
-                        |> List.isEmpty)
+                    not
+                        (Dict.values model.workspace.apps
+                            |> List.filter (\a -> a.name == newApp.name)
+                            |> List.isEmpty
+                        )
 
                 newAppName =
                     if shouldUpdateAppName then
                         newApp.name ++ "-" ++ String.fromInt newApp.id
+
                     else
                         newApp.name
 
                 updatedNewApp =
-                    { newApp | name = newAppName}
+                    { newApp | name = newAppName }
 
                 newApps =
                     Dict.update app.id (Maybe.map (\_ -> updatedNewApp)) model.workspace.apps
@@ -310,8 +315,11 @@ update msg model =
 
                 newWorkspace =
                     { workspace | apps = newApps }
+
+                newCount =
+                    model.count - 1
             in
-            ( { model | workspace = newWorkspace }, Cmd.none )
+            ( { model | workspace = newWorkspace, count = newCount }, Cmd.none )
 
         DownloadWorkspace ->
             ( model, downloadWorkspace (getDownloadWorkspaceData model) )
@@ -827,8 +835,10 @@ userReplace userRegex replacer string =
 appNameAlreadyUsed : String -> Model -> Bool
 appNameAlreadyUsed appName model =
     (Dict.values model.workspace.apps
-    |> List.filter (\app -> app.name == appName)
-    |> List.length) > 1
+        |> List.filter (\app -> app.name == appName)
+        |> List.length
+    )
+        > 1
 
 
 getDefaultJavaTemplate : Maybe String
