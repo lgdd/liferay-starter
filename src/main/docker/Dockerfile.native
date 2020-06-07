@@ -1,42 +1,55 @@
-####
-# This Dockerfile is used in order to build a container that runs the Quarkus application in native (no JVM) mode
-#
-# Before building the docker image run:
-#
-# mvn package -Pnative -Dquarkus.native.container-build=true
-#
-# Then, build the image with:
-#
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/code-with-quarkus .
-#
-# Then run the container using:
-#
-# docker run -i --rm -p 8080:8080 quarkus/code-with-quarkus
-#
-###
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1
+FROM oracle/graalvm-ce:20.0.0-java11 AS builder
 
-ARG JAVA_PACKAGE=java-11-openjdk-headless
+ENV WORKSPACE=/workspace
 
-RUN microdnf install curl ${JAVA_PACKAGE} \
-    && microdnf update \
-    && microdnf clean all \
-    && curl -sL https://oss.sonatype.org/content/repositories/snapshots/biz/aQute/bnd/biz.aQute.jpm.run/4.0.0-SNAPSHOT/biz.aQute.jpm.run-4.0.0-20190612.143010-15.jar > tmp.jar \
+RUN yum update -y \
+    && yum install -y oracle-nodejs-release-el7 \
+    && yum install -y nodejs \
+    && rm -rf /var/cache/yum \
+    && gu install native-image \
+    && mkdir $WORKSPACE \
+    && chown 1001 $WORKSPACE \
+    && chmod "g+rwX" $WORKSPACE \
+    && chown 1001:root $WORKSPACE
+
+COPY . $WORKSPACE
+WORKDIR $WORKSPACE
+
+RUN ./mvnw clean package -Pnative
+
+FROM frolvlad/alpine-glibc
+
+ENV WORKSPACE=/workspace
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH=$PATH:/home/node/.npm-global/bin
+ENV PATH=$PATH:/home/node/.npm-global/lib
+ENV NODE_ENV=production
+
+RUN addgroup -g 1000 node \
+    && adduser -u 1000 -G node -s /bin/sh -D node \
+    && apk add --no-cache \
+    curl \
+    nodejs \
+    nodejs-npm \
+    openjdk11 \
+    && curl -sSL https://oss.sonatype.org/content/repositories/snapshots/biz/aQute/bnd/biz.aQute.jpm.run/4.0.0-SNAPSHOT/biz.aQute.jpm.run-4.0.0-20190612.143010-15.jar > tmp.jar \
     && JPM_BIN_DIR=`java -jar tmp.jar -g init | grep -e "Bin[ \t]*dir" | awk '{print $3}'` \
     && rm -f tmp.jar \
     && ${JPM_BIN_DIR}/jpm install -f https://releases.liferay.com/tools/blade-cli/latest/blade.jar \
-    && blade update
+    && blade update \
+    && blade version
 
-WORKDIR /work/
-COPY target/*-runner /work/application
+USER node
 
-# set up permissions for user `1001`
-RUN chmod 775 /work /work/application \
-  && chown -R 1001 /work \
-  && chmod -R "g+rwX" /work \
-  && chown -R 1001:root /work
+RUN npm i -g npm \
+    && npm i -g yo \
+    && npm i -g old-generator-liferay-theme@npm:generator-liferay-theme@^8.0.0 \
+    && npm i -g generator-liferay-theme \
+    && npm i -g generator-liferay-js
 
+COPY --from=builder $WORKSPACE/target/*-runner /usr/bin/liferay-starter
+
+USER node
 EXPOSE 8080
-USER 1001
 
-CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+CMD ["/usr/bin/liferay-starter", "-Dquarkus.http.host=0.0.0.0"]
