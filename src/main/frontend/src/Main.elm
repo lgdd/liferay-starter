@@ -844,12 +844,12 @@ getInitCmd model =
 getInitCmdUnix : Model -> String
 getInitCmdUnix model =
     let
-        initCmd =
+        wrapper =
             if model.workspace.tool == "gradle" then
-                "./gradlew initBundle"
+                "./gradlew"
 
             else
-                "./mvnw bundle-support:init"
+                "./mvnw"
     in
     "mkdir "
         ++ model.workspace.projectArtifactId
@@ -870,19 +870,18 @@ getInitCmdUnix model =
         ++ " && chmod +x "
         ++ model.workspace.wrapper
         ++ " && "
-        ++ initCmd
-        ++ getBuildDeployCmd model
+        ++ getBuildDeployCmd model wrapper
 
 
 getInitCmdWindows : Model -> String
 getInitCmdWindows model =
     let
-        initCmd =
+        wrapper =
             if model.workspace.tool == "gradle" then
-                "gradlew.bat initBundle"
+                "gradlew.bat"
 
             else
-                "mvnw.cmd bundle-support:init"
+                "mvnw.cmd"
     in
     "mkdir "
         ++ model.workspace.projectArtifactId
@@ -901,19 +900,76 @@ getInitCmdWindows model =
         ++ "del "
         ++ getZipFileName model
         ++ " && "
-        ++ initCmd
-        ++ getBuildDeployCmd model
+        ++ getBuildDeployCmd model wrapper
 
 
-getBuildDeployCmd model =
+getBuildDeployCmd : Model -> String -> String
+getBuildDeployCmd model wrapper =
+    let
+        serviceBuilders =
+            getServiceBuilders model
+
+        initCmd =
+            if model.workspace.tool == "gradle" then
+                "initBundle"
+
+            else
+                "bundle-support:init"
+
+        buildCmd =
+            if model.workspace.tool == "gradle" then
+                "build"
+
+            else
+                "package"
+
+        deployCmd =
+            if model.workspace.tool == "gradle" then
+                "deploy"
+
+            else
+                "bundle-support:deploy"
+
+        serviceBuilderCmd =
+            if model.workspace.tool == "gradle" then
+                "buildService"
+
+            else
+                getServiceBuilderMavenGoal serviceBuilders
+    in
     if Dict.isEmpty model.workspace.apps then
-        ""
+        String.join " " [ wrapper, initCmd ]
 
-    else if model.workspace.tool == "gradle" then
-        " build deploy"
+    else if not (List.isEmpty serviceBuilders) then
+        if model.workspace.tool == "gradle" then
+            String.join " " [ wrapper, serviceBuilderCmd, initCmd, buildCmd, deployCmd ]
+
+        else
+            String.join " " [ wrapper, serviceBuilderCmd, "&&", wrapper, initCmd, buildCmd, deployCmd ]
 
     else
-        " package bundle-support:deploy"
+        String.join " " [ wrapper, initCmd, buildCmd, deployCmd ]
+
+
+getServiceBuilderMavenGoal : List LiferayApp -> String
+getServiceBuilderMavenGoal apps =
+    let
+        serviceBuilderPaths =
+            List.map getServiceBuilderRelativePath apps
+                |> String.join ","
+    in
+    "service-builder:build --projects " ++ serviceBuilderPaths
+
+
+getServiceBuilderRelativePath : LiferayApp -> String
+getServiceBuilderRelativePath app =
+    "modules/" ++ app.name ++ "/" ++ app.name ++ "-service"
+
+
+getServiceBuilders : Model -> List LiferayApp
+getServiceBuilders model =
+    Dict.values model.workspace.apps
+        |> List.filter (\app -> app.template == Just "service-builder")
 
 
 getSystemFromPlatform : String -> System
