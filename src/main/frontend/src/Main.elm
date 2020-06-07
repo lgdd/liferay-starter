@@ -6,6 +6,7 @@ import Dict exposing (Dict)
 import Html exposing (Html, a, button, code, div, footer, h1, h2, header, i, input, label, li, node, option, p, pre, select, span, text, ul)
 import Html.Attributes exposing (attribute, class, for, href, id, target, title, type_, value)
 import Html.Events exposing (onClick, onInput)
+import Json.Encode as JsonEncode
 import Regex
 
 
