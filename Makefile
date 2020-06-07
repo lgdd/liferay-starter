@@ -14,7 +14,7 @@ dockerNative:
 	docker build -f src/main/docker/Dockerfile.native -t lgdd/liferay-starter .
 
 dockerRun:
-	docker run -it --rm -p 9080:8080 lgdd/liferay-starter:latest-jvm
+	docker run -it --rm -p 8000:8000 lgdd/liferay-starter:latest-jvm
 
 dockerRunNative:
-	docker run -it --rm -p 9080:8080 lgdd/liferay-starter
+	docker run -it --rm -p 8000:8000 lgdd/liferay-starter
