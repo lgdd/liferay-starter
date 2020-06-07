@@ -7,11 +7,14 @@ devFront:
 build:
 	./mvnw clean package
 
-dockerBuild:
-	./mvnw clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=latest-jvm
+docker:
+	docker build -f src/main/docker/Dockerfile.jvm -t lgdd/liferay-starter:latest-jvm .
 
-dockerBuildNative:
-	./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true
+dockerNative:
+	docker build -f src/main/docker/Dockerfile.native -t lgdd/liferay-starter .
 
 dockerRun:
+	docker run -it --rm -p 9080:8080 lgdd/liferay-starter:latest-jvm
+
+dockerRunNative:
 	docker run -it --rm -p 9080:8080 lgdd/liferay-starter
