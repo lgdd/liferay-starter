@@ -1,4 +1,53 @@
-*
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+.factorypath
+
+# IntelliJ
+.idea
+*.ipr
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode
+
+# OSX
+.DS_Store
+
+# Vimli
+*.swp
+*.swo
+
+# patch
+*.orig
+*.rej
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+
+# Quarkus
+lsp
+
+# Frontend
+src/main/frontend/node/
+# Distribution
+src/main/frontend/build/
+
+# elm-package generated files
+src/main/frontend/elm-stuff
+
+# elm-repl generated files
+src/main/frontend/repl-temp-*
+
+# Dependency directories
+src/main/frontend/node_modules
