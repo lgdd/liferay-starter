@@ -10,13 +10,13 @@ Use it online: https://liferay-starter.lgdd.io/.
 
 Using [Docker](https://hub.docker.com/repository/docker/lgdd/liferay-starter):
 ```shell
-docker run -it --rm -p 9080:8080 lgdd/liferay-starter
+docker run -it --rm -p 8000:8000 lgdd/liferay-starter
 # or
-docker run -it --rm -p 9080:8080 lgdd/liferay-starter:latest-jvm
+docker run -it --rm -p 8000:8000 lgdd/liferay-starter:latest-jvm
 ```
 > The default image and tag `lgdd/liferay-starter:latest` is a container image including a native executable instead of a jar. See: https://quarkus.io/guides/building-native-image.
 
-Once the container is started, go to http://localhost:9080.
+Once the container is started, go to http://localhost:8000.
 
 Using this repo:
 ```
@@ -26,7 +26,7 @@ make dev
 ```
 > Please refer to the [Makefile](Makefile) to see the complete list of available commands.
 
-Once the server is started, go to http://localhost:8080.
+Once the server is started, go to http://localhost:8000.
 
 If you want to work on the frontend, run `make devFront` and go to http://localhost:3000.
 
