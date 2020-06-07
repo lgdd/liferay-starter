@@ -269,8 +269,23 @@ update msg model =
         UpdateAppTemplate app newTemplate ->
             let
                 newName =
-                    if app.name == getDefaultAppName app.template then
-                        getDefaultAppName (Just newTemplate)
+                    if
+                        app.name
+                            == getDefaultAppName app.template
+                            || app.name
+                            == (getDefaultAppName app.template ++ "-" ++ String.fromInt app.id)
+                    then
+                        if
+                            not
+                                (Dict.values model.workspace.apps
+                                    |> List.filter (\a -> a.name == getDefaultAppName (Just newTemplate))
+                                    |> List.isEmpty
+                                )
+                        then
+                            getDefaultAppName (Just newTemplate) ++ "-" ++ String.fromInt app.id
+
+                        else
+                            getDefaultAppName (Just newTemplate)
 
                     else
                         app.name
@@ -278,25 +293,8 @@ update msg model =
                 newApp =
                     { app | template = Just newTemplate, name = newName }
 
-                shouldUpdateAppName =
-                    not
-                        (Dict.values model.workspace.apps
-                            |> List.filter (\a -> a.name == newApp.name)
-                            |> List.isEmpty
-                        )
-
-                newAppName =
-                    if shouldUpdateAppName then
-                        newApp.name ++ "-" ++ String.fromInt newApp.id
-
-                    else
-                        newApp.name
-
-                updatedNewApp =
-                    { newApp | name = newAppName }
-
                 newApps =
-                    Dict.update app.id (Maybe.map (\_ -> updatedNewApp)) model.workspace.apps
+                    Dict.update app.id (Maybe.map (\_ -> newApp)) model.workspace.apps
 
                 workspace =
                     model.workspace
