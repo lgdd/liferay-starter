@@ -15,11 +15,16 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Singleton
 public class WorkspaceService {
 
     private static final Logger log = LoggerFactory.getLogger(WorkspaceService.class);
+
+    private static final String NODE_VERSION = "v12.18.0";
+    private static final String NPM_VERSION = "6.14.4";
+    private static final String MAVEN_RESOURCES_DIR = "/starter/maven";
 
     @Inject
     ArchiveService archiveService;
@@ -63,7 +68,7 @@ public class WorkspaceService {
                 .filter(app -> LiferayAppType.JAVASCRIPT.equals(app.getType()))
                 .forEach(app -> {
                     try {
-                        addJavaScriptApp(app, workspacePath);
+                        addJavaScriptApp(app, tool, workspace, workspacePath);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -73,7 +78,7 @@ public class WorkspaceService {
                 .filter(app -> LiferayAppType.THEME.equals(app.getType()))
                 .forEach(app -> {
                     try {
-                        addTheme(app, version, workspacePath);
+                        addTheme(app, version, tool, workspace, workspacePath);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -108,7 +113,7 @@ public class WorkspaceService {
         process.destroy();
     }
 
-    private void addJavaScriptApp(LiferayApp app, Path baseWorkspace) throws Exception {
+    private void addJavaScriptApp(LiferayApp app, String tool, LiferayWorkspace workspace, Path baseWorkspace) throws Exception {
         File config = File.createTempFile(".generator-liferay-js", ".json");
         BufferedWriter bw = new BufferedWriter(new FileWriter(config));
         bw.write("{\n" +
@@ -140,11 +145,18 @@ public class WorkspaceService {
 
         process.destroy();
 
-        addNpmrcFile(Path.of(baseWorkspace.resolve("modules").toAbsolutePath().toString(), app.getName()));
+        var appPath = Path.of(baseWorkspace.resolve("modules").toAbsolutePath().toString(), app.getName());
+        var modulesPomPath = Path.of(baseWorkspace.resolve("modules").toAbsolutePath().toString(), "pom.xml");
+        addNpmrcFile(appPath);
+
+        if ("maven".equalsIgnoreCase(tool)) {
+            addPomToJavaScriptApp(appPath, app, workspace);
+            updateModulesPomFile(modulesPomPath, app);
+        }
     }
 
-    private void addTheme(LiferayApp app, String liferayVersion, Path baseWorkspace) throws Exception {
-        var themeName = capitalize(app.getName(), "-", true);
+    private void addTheme(LiferayApp theme, String liferayVersion, String tool, LiferayWorkspace workspace, Path baseWorkspace) throws Exception {
+        var themeName = capitalize(theme.getName(), "-", true);
         File config = File.createTempFile(".generator-liferay-theme", ".json");
         BufferedWriter bw = new BufferedWriter(new FileWriter(config));
         bw.write("{\n" +
@@ -152,7 +164,7 @@ public class WorkspaceService {
                 "  \"answers\": {\n" +
                 "    \"*\": {\n" +
                 "      \"themeName\": \"" + themeName + "\",\n" +
-                "      \"themeId\": \"" + app.getName() + "\",\n" +
+                "      \"themeId\": \"" + theme.getName() + "\",\n" +
                 "      \"liferayVersion\": \"" + liferayVersion + "\",\n" +
                 "      \"fontAwesome\": true\n" +
                 "    }\n" +
@@ -179,7 +191,14 @@ public class WorkspaceService {
 
         process.destroy();
 
-        addNpmrcFile(Path.of(baseWorkspace.resolve("themes").toAbsolutePath().toString(), app.getName()));
+        var themePath = Path.of(baseWorkspace.resolve("themes").toAbsolutePath().toString(), theme.getName());
+        var modulesPomPath = Path.of(baseWorkspace.resolve("themes").toAbsolutePath().toString(), "pom.xml");
+        addNpmrcFile(themePath);
+
+        if ("maven".equalsIgnoreCase(tool)) {
+            addPomToTheme(themePath, theme, workspace);
+            updateModulesPomFile(modulesPomPath, theme);
+        }
     }
 
     public static void debugCommand(List<String> command) {
@@ -236,7 +255,7 @@ public class WorkspaceService {
 
         var content = Files.readString(pomPath, charset);
         content = content.replaceAll("" +
-                        "<groupId>" + projectArtifactId.replaceAll("-",".") + "</groupId>",
+                        "<groupId>" + projectArtifactId.replaceAll("-", ".") + "</groupId>",
                 "<groupId>" + projectGroupId + "</groupId>");
 
         content = content.replaceAll("" +
@@ -250,10 +269,62 @@ public class WorkspaceService {
         var file = new File(appPath.toAbsolutePath().toString(), ".npmrc");
         var charset = StandardCharsets.UTF_8;
 
-        if(file.createNewFile()) {
+        if (file.createNewFile()) {
             String content = "ignore-scripts=false";
             Files.write(file.toPath(), content.getBytes(charset));
         }
     }
 
+    private void updateModulesPomFile(Path modulesPomPath, LiferayApp app) throws IOException {
+        var charset = StandardCharsets.UTF_8;
+
+        var content = Files.readString(modulesPomPath, charset);
+
+        if (!content.contains("</modules>")) {
+            content = content.replaceAll("</packaging>", "</packaging>\n\n\t<modules>\n\t</modules>\n");
+        }
+
+        content = content.replaceAll("</modules>", "\t<module>" + app.getName() + "</module>\n\t</modules>");
+        Files.write(modulesPomPath, content.getBytes(charset));
+    }
+
+    private void addPomToJavaScriptApp(Path appPath, LiferayApp app, LiferayWorkspace workspace) throws IOException {
+        var pomContent = new BufferedReader(
+                new InputStreamReader(WorkspaceService.class.getResourceAsStream(MAVEN_RESOURCES_DIR + "/js-pom.xml"))
+        ).lines().collect(Collectors.joining("\n"));
+
+        var file = new File(appPath.toAbsolutePath().toString(), "pom.xml");
+        var charset = StandardCharsets.UTF_8;
+
+        pomContent = pomContent.replaceAll("%PROJECT_GROUP_ID%", workspace.getProjectGroupId());
+        pomContent = pomContent.replaceAll("%MODULES_ARTIFACT_ID%", workspace.getProjectArtifactId() + "-modules");
+        pomContent = pomContent.replaceAll("%PROJECT_VERSION%", workspace.getProjectVersion());
+        pomContent = pomContent.replaceAll("%APP_NAME%", app.getName());
+        pomContent = pomContent.replaceAll("%NODE_VERSION%", NODE_VERSION);
+        pomContent = pomContent.replaceAll("%NPM_VERSION%", NPM_VERSION);
+
+        if (file.createNewFile()) {
+            Files.write(file.toPath(), pomContent.getBytes(charset));
+        }
+    }
+
+    private void addPomToTheme(Path appPath, LiferayApp app, LiferayWorkspace workspace) throws IOException {
+        var pomContent = new BufferedReader(
+                new InputStreamReader(WorkspaceService.class.getResourceAsStream(MAVEN_RESOURCES_DIR + "/theme-pom.xml"))
+        ).lines().collect(Collectors.joining("\n"));
+
+        var file = new File(appPath.toAbsolutePath().toString(), "pom.xml");
+        var charset = StandardCharsets.UTF_8;
+
+        pomContent = pomContent.replaceAll("%PROJECT_GROUP_ID%", workspace.getProjectGroupId());
+        pomContent = pomContent.replaceAll("%THEMES_ARTIFACT_ID%", workspace.getProjectArtifactId() + "-themes");
+        pomContent = pomContent.replaceAll("%PROJECT_VERSION%", workspace.getProjectVersion());
+        pomContent = pomContent.replaceAll("%THEME_NAME%", app.getName());
+        pomContent = pomContent.replaceAll("%NODE_VERSION%", NODE_VERSION);
+        pomContent = pomContent.replaceAll("%NPM_VERSION%", NPM_VERSION);
+
+        if (file.createNewFile()) {
+            Files.write(file.toPath(), pomContent.getBytes(charset));
+        }
+    }
 }
