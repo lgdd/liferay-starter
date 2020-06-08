@@ -1,4 +1,7 @@
 # Changelog
+## [2.0.1] - 2020-06-08
+### Changed
+- Upgrade websocket-extensions to v0.1.4
 ## [2.0.0] - 2020-06-07
 ### Added
 - Support to generate Liferay apps from templates (Java, JS, Theme) 
