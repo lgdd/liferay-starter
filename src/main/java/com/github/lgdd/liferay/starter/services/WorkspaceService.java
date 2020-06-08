@@ -76,9 +76,9 @@ public class WorkspaceService {
 
         apps.parallelStream()
                 .filter(app -> LiferayAppType.THEME.equals(app.getType()))
-                .forEach(app -> {
+                .forEach(theme -> {
                     try {
-                        addTheme(app, version, tool, workspace, workspacePath);
+                        addTheme(theme, version, tool, workspace, workspacePath);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -191,7 +191,7 @@ public class WorkspaceService {
 
         process.destroy();
 
-        var themePath = Path.of(baseWorkspace.resolve("themes").toAbsolutePath().toString(), theme.getName());
+        var themePath = Path.of(baseWorkspace.resolve("themes").toAbsolutePath().toString(), getThemeName(theme));
         var modulesPomPath = Path.of(baseWorkspace.resolve("themes").toAbsolutePath().toString(), "pom.xml");
         addNpmrcFile(themePath);
 
@@ -277,14 +277,14 @@ public class WorkspaceService {
 
     private void updateModulesPomFile(Path modulesPomPath, LiferayApp app) throws IOException {
         var charset = StandardCharsets.UTF_8;
-
+        var appName = LiferayAppType.THEME.equals(app.getType()) ? getThemeName(app) : app.getName();
         var content = Files.readString(modulesPomPath, charset);
 
         if (!content.contains("</modules>")) {
             content = content.replaceAll("</packaging>", "</packaging>\n\n\t<modules>\n\t</modules>\n");
         }
 
-        content = content.replaceAll("</modules>", "\t<module>" + app.getName() + "</module>\n\t</modules>");
+        content = content.replaceAll("</modules>", "\t<module>" + appName + "</module>\n\t</modules>");
         Files.write(modulesPomPath, content.getBytes(charset));
     }
 
@@ -308,23 +308,28 @@ public class WorkspaceService {
         }
     }
 
-    private void addPomToTheme(Path appPath, LiferayApp app, LiferayWorkspace workspace) throws IOException {
+    private void addPomToTheme(Path appPath, LiferayApp theme, LiferayWorkspace workspace) throws IOException {
         var pomContent = new BufferedReader(
                 new InputStreamReader(WorkspaceService.class.getResourceAsStream(MAVEN_RESOURCES_DIR + "/theme-pom.xml"))
         ).lines().collect(Collectors.joining("\n"));
 
         var file = new File(appPath.toAbsolutePath().toString(), "pom.xml");
         var charset = StandardCharsets.UTF_8;
+        var themeName = getThemeName(theme);
 
         pomContent = pomContent.replaceAll("%PROJECT_GROUP_ID%", workspace.getProjectGroupId());
         pomContent = pomContent.replaceAll("%THEMES_ARTIFACT_ID%", workspace.getProjectArtifactId() + "-themes");
         pomContent = pomContent.replaceAll("%PROJECT_VERSION%", workspace.getProjectVersion());
-        pomContent = pomContent.replaceAll("%THEME_NAME%", app.getName());
+        pomContent = pomContent.replaceAll("%THEME_NAME%", themeName);
         pomContent = pomContent.replaceAll("%NODE_VERSION%", NODE_VERSION);
         pomContent = pomContent.replaceAll("%NPM_VERSION%", NPM_VERSION);
 
         if (file.createNewFile()) {
             Files.write(file.toPath(), pomContent.getBytes(charset));
         }
+    }
+
+    private String getThemeName(LiferayApp theme) {
+        return  theme.getName().endsWith("-theme") ? theme.getName() : theme.getName() + "-theme";
     }
 }
