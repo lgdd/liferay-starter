@@ -137,8 +137,8 @@
           </execution>
         </executions>
         <configuration>
-          <nodeVersion>v10.15.3</nodeVersion>
-          <yarnVersion>v1.15.2</yarnVersion>
+          <nodeVersion>v12.18.0</nodeVersion>
+          <yarnVersion>v1.22.4</yarnVersion>
           <workingDirectory>src/main/frontend</workingDirectory>
         </configuration>
       </plugin>
