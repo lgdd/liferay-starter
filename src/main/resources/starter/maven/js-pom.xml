@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>%PROJECT_GROUP_ID%</groupId>
+        <artifactId>%MODULES_ARTIFACT_ID%</artifactId>
+        <version>%PROJECT_VERSION%</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>%APP_NAME%</artifactId>
+    <name>%APP_NAME%</name>
+
+    <!-- Keeps Maven from building a JAR since Liferay NPM Bundler is doing it -->
+    <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.2</version>
+                <configuration>
+                    <installDirectory>${project.build.directory}</installDirectory>
+                    <nodeVersion>%NODE_VERSION%</nodeVersion>
+                    <npmVersion>%NPM_VERSION%</npmVersion>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-run</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Deploy JAR to the deploy folder -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/../../bundles/deploy</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/dist</directory>
+                                    <includes>
+                                        <include>**/*.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

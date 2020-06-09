@@ -1,4 +1,7 @@
 # Changelog
+## [2.1.0] - 2020-06-09
+### Fixed
+- JavaScript apps and themes builds with Maven by adding opinionated pom.xml files.
 ## [2.0.1] - 2020-06-08
 ### Changed
 - Upgrade websocket-extensions to v0.1.4
