@@ -795,7 +795,7 @@ formatAppsToJson apps =
 formatAppToJson : ( Int, LiferayApp ) -> JsonEncode.Value
 formatAppToJson ( id, app ) =
     JsonEncode.object
-        [ ( "uuid", JsonEncode.int id )
+        [ ( "id", JsonEncode.int id )
         , ( "name", JsonEncode.string app.name )
         , ( "type", JsonEncode.string (formatAppType app.appType) )
         , ( "template", JsonEncode.string (formatAppTemplate (Maybe.withDefault "theme" app.template)) )
