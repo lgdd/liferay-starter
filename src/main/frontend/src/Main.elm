@@ -228,7 +228,7 @@ update msg model =
 
                 newAppName =
                     if shouldUpdateAppName then
-                        newApp.name ++ "-" ++ String.fromInt newId
+                        newApp.name ++ "-" ++ toLetters (newId - 1) ""
 
                     else
                         newApp.name
@@ -282,7 +282,7 @@ update msg model =
                                     |> List.isEmpty
                                 )
                         then
-                            getDefaultAppName (Just newTemplate) ++ "-" ++ String.fromInt app.id
+                            getDefaultAppName (Just newTemplate) ++ "-" ++ toLetters (app.id - 1) ""
 
                         else
                             getDefaultAppName (Just newTemplate)
@@ -795,7 +795,7 @@ formatAppsToJson apps =
 formatAppToJson : ( Int, LiferayApp ) -> JsonEncode.Value
 formatAppToJson ( id, app ) =
     JsonEncode.object
-        [ ( "uuid", JsonEncode.int id )
+        [ ( "id", JsonEncode.int id )
         , ( "name", JsonEncode.string app.name )
         , ( "type", JsonEncode.string (formatAppType app.appType) )
         , ( "template", JsonEncode.string (formatAppTemplate (Maybe.withDefault "theme" app.template)) )
@@ -1049,6 +1049,31 @@ getSystemFromPlatform platform =
 
     else
         Unix
+
+
+toLetters : Int -> String -> String
+toLetters number letters =
+    let
+        modulo =
+            modBy 26 (number - 1)
+
+        char =
+            Char.fromCode (65 + modulo)
+
+        newLetters =
+            String.concat
+                [ String.toLower (String.fromChar char)
+                , letters
+                ]
+
+        dividend =
+            (number - modulo) // 26
+    in
+    if dividend > 0 then
+        toLetters dividend newLetters
+
+    else
+        newLetters
 
 
 javaPackagePattern : Regex.Regex
