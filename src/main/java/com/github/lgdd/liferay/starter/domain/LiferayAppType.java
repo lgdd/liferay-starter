@@ -4,7 +4,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
 public enum LiferayAppType {
-    JAVA,
-    JAVASCRIPT,
-    THEME
+  JAVA,
+  JAVASCRIPT,
+  THEME
 }
