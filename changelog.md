@@ -1,4 +1,9 @@
 # Changelog
+## [2.1.1] - 2020-06-12
+### Changed
+- Refacotring backend code.
+### Fixed
+- Build failing (Java) because the default incremental app name contains a number.
 ## [2.1.0] - 2020-06-09
 ### Fixed
 - JavaScript apps and themes builds with Maven by adding opinionated pom.xml files.
