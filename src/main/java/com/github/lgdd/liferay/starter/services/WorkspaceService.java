@@ -41,7 +41,7 @@ public class WorkspaceService {
     addJavaScriptApps(apps, tool, workspace, workspacePath);
     addThemes(apps, version, tool, workspace, workspacePath);
 
-    archiveService.compressZipfile(workspacePath.toAbsolutePath().toString(), baos);
+    archiveService.compressZipFile(workspacePath.toAbsolutePath().toString(), baos);
 
     clean(buildPath);
 

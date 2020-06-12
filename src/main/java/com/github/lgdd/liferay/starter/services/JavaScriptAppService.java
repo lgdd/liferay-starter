@@ -2,24 +2,39 @@ package com.github.lgdd.liferay.starter.services;
 
 import com.github.lgdd.liferay.starter.domain.LiferayApp;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
+import com.github.lgdd.liferay.starter.exception.CommandException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Path;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Creates JavaScript apps (React, Vue, Angular, Vanilla JS) for a Liferay workspace.
+ *
+ * @see com.github.lgdd.liferay.starter.domain.LiferayAppType
+ */
 @Singleton
 public class JavaScriptAppService {
 
-  @Inject
-  CommandService commandService;
+  /**
+   * Creates a JavaScript app for a Liferay workspace given parameters.
+   *
+   * @param app           app parameter
+   * @param tool          Maven or Gradle
+   * @param workspace     Liferay Workspace parameters
+   * @param baseWorkspace Liferay Workspace where the JavaScript app will be created
+   * @throws IOException      if it fails to create the app config file
+   * @throws CommandException if the creation command fails
+   */
+  public void create(
+      LiferayApp app,
+      String tool,
+      LiferayWorkspace workspace,
+      Path baseWorkspace) throws IOException, CommandException {
 
-  @Inject
-  ProjectFileService projectFileService;
-
-  public void create(LiferayApp app, String tool, LiferayWorkspace workspace,
-      Path baseWorkspace) throws Exception {
     File config = File.createTempFile(".generator-liferay-js", ".json");
     BufferedWriter bw = new BufferedWriter(new FileWriter(config));
     bw.write("{\n" +
@@ -57,5 +72,10 @@ public class JavaScriptAppService {
     }
   }
 
+  @Inject
+  CommandService commandService;
+
+  @Inject
+  ProjectFileService projectFileService;
 
 }

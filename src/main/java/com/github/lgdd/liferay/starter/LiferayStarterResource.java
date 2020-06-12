@@ -1,35 +1,36 @@
 package com.github.lgdd.liferay.starter;
 
-import com.github.lgdd.liferay.starter.domain.LiferayApp;
-import com.github.lgdd.liferay.starter.domain.LiferayAppTemplate;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.services.WorkspaceService;
 import com.github.lgdd.liferay.starter.util.StringUtil;
+import java.util.Arrays;
+import java.util.regex.Pattern;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
+/**
+ * API to generate and download a Liferay Workspace.
+ */
 @Path("/api/liferay")
 public class LiferayStarterResource {
 
-  private static final Logger log = LoggerFactory.getLogger(LiferayStarterResource.class);
-
-  private static final String JAVA_PKG_REGEX = "^(?:\\w+|\\w+\\.\\w+)+$";
-  private static final String SEMVER_REGEX = "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$";
-
-  @Inject
-  WorkspaceService workspaceService;
-
+  /**
+   * Generates a Liferay Workspace given project parameters.
+   *
+   * @param tool      Maven or Gradle
+   * @param version   Liferay version (7.0, 7.1, 7.2 or 7.3)
+   * @param workspace Project parameters
+   * @return zip file containing a Liferay Workspace
+   * @see LiferayWorkspace
+   */
   @POST
   @Path("/{version}/workspace/{tool}")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -58,6 +59,14 @@ public class LiferayStarterResource {
     }
   }
 
+  /**
+   * Checks if project parameters are valid.
+   *
+   * @param tool      Maven or Gradle
+   * @param version   Liferay version (7.0, 7.1, 7.2 or 7.3)
+   * @param workspace Project parameters
+   * @return true if parameters are valid, false otherwise
+   */
   private boolean validateWorkspaceParams(String tool, String version, LiferayWorkspace workspace) {
     var projectGroupId = workspace.getProjectGroupId();
     var projectArtifactId = workspace.getProjectArtifactId();
@@ -78,5 +87,11 @@ public class LiferayStarterResource {
     return projectArtifactId != null;
   }
 
+  private static final Logger log = LoggerFactory.getLogger(LiferayStarterResource.class);
+  private static final String JAVA_PKG_REGEX = "^(?:\\w+|\\w+\\.\\w+)+$";
+  private static final String SEMVER_REGEX = "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$";
+
+  @Inject
+  WorkspaceService workspaceService;
 
 }

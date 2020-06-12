@@ -6,6 +6,7 @@ import static com.github.lgdd.liferay.starter.services.WorkspaceService.NPM_VERS
 
 import com.github.lgdd.liferay.starter.domain.LiferayApp;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
+import com.github.lgdd.liferay.starter.exception.CommandException;
 import com.github.lgdd.liferay.starter.util.StringUtil;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -20,21 +21,29 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Creates a Theme for a Liferay workspace.
+ */
 @Singleton
 public class ThemeService {
 
-  @Inject
-  CommandService commandService;
-
-  @Inject
-  ProjectFileService projectFileService;
-
+  /**
+   * Create a Theme for a Liferay Workspace given project parameters.
+   *
+   * @param theme          theme parameters
+   * @param liferayVersion Liferay version (7.0, 7.1, 7.2 or 7.3)
+   * @param tool           Maven or Gradle
+   * @param workspace      Liferay Workspace parameters
+   * @param baseWorkspace  Liferay Workspace location
+   * @throws IOException      if it fails to create the theme config file
+   * @throws CommandException if the creation command fails
+   */
   public void create(
       LiferayApp theme,
       String liferayVersion,
       String tool,
       LiferayWorkspace workspace,
-      Path baseWorkspace) throws Exception {
+      Path baseWorkspace) throws IOException, CommandException {
 
     var themeName = StringUtil.capitalize(theme.getName(), "-", true);
     File config = File.createTempFile(".generator-liferay-theme", ".json");
@@ -74,37 +83,15 @@ public class ThemeService {
     projectFileService.addNpmrcFile(themePath);
 
     if ("maven".equalsIgnoreCase(tool)) {
-      addPomToTheme(themePath, theme, workspace);
+      projectFileService.addPomToTheme(themePath, theme, workspace);
       projectFileService.updateModulesPomFile(modulesPomPath, theme);
     }
   }
 
-  private void addPomToTheme(
-      Path appPath,
-      LiferayApp theme,
-      LiferayWorkspace workspace) throws IOException {
+  @Inject
+  CommandService commandService;
 
-    var pomContent = new BufferedReader(
-        new InputStreamReader(
-            WorkspaceService.class
-                .getResourceAsStream(MAVEN_RESOURCES_DIR + "/theme-pom.xml")))
-        .lines()
-        .collect(Collectors.joining("\n"));
+  @Inject
+  ProjectFileService projectFileService;
 
-    var file = new File(appPath.toAbsolutePath().toString(), "pom.xml");
-    var charset = StandardCharsets.UTF_8;
-    var themeArtifactId = StringUtil.getThemeArtifactId(theme.getName());
-
-    pomContent = pomContent.replaceAll("%PROJECT_GROUP_ID%", workspace.getProjectGroupId());
-    pomContent = pomContent
-        .replaceAll("%THEMES_ARTIFACT_ID%", workspace.getProjectArtifactId() + "-themes");
-    pomContent = pomContent.replaceAll("%PROJECT_VERSION%", workspace.getProjectVersion());
-    pomContent = pomContent.replaceAll("%THEME_NAME%", themeArtifactId);
-    pomContent = pomContent.replaceAll("%NODE_VERSION%", NODE_VERSION);
-    pomContent = pomContent.replaceAll("%NPM_VERSION%", NPM_VERSION);
-
-    if (file.createNewFile()) {
-      Files.write(file.toPath(), pomContent.getBytes(charset));
-    }
-  }
 }

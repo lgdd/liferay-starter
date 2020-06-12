@@ -2,17 +2,42 @@ package com.github.lgdd.liferay.starter;
 
 import com.github.lgdd.liferay.starter.services.ArchiveService;
 import com.github.lgdd.liferay.starter.services.CommandService;
+import com.github.lgdd.liferay.starter.services.JavaAppService;
+import com.github.lgdd.liferay.starter.services.JavaScriptAppService;
 import com.github.lgdd.liferay.starter.services.ProjectFileService;
 import com.github.lgdd.liferay.starter.services.ThemeService;
 import com.github.lgdd.liferay.starter.services.WorkspaceService;
-import org.eclipse.microprofile.health.*;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Readiness;
 
+/**
+ * Health check endpoint to verify application readiness.
+ */
 @Readiness
 @ApplicationScoped
 public class LiferayStarterHealthCheck implements HealthCheck {
+
+  @Override
+  public HealthCheckResponse call() {
+
+    var responseBuilder = HealthCheckResponse.named("Liferay Starter Health Check");
+
+    if (workspaceService != null
+        && archiveService != null
+        && commandService != null
+        && projectFileService != null
+        && javaAppService != null
+        && javaScriptAppService != null
+        && themeService != null) {
+      responseBuilder.up();
+    } else {
+      responseBuilder.down();
+    }
+    return responseBuilder.build();
+  }
 
   @Inject
   WorkspaceService workspaceService;
@@ -29,20 +54,10 @@ public class LiferayStarterHealthCheck implements HealthCheck {
   @Inject
   ThemeService themeService;
 
-  @Override
-  public HealthCheckResponse call() {
+  @Inject
+  JavaAppService javaAppService;
 
-    var responseBuilder = HealthCheckResponse.named("Liferay Starter Health Check");
+  @Inject
+  JavaScriptAppService javaScriptAppService;
 
-    if (workspaceService != null
-        && archiveService != null
-        && commandService != null
-        && projectFileService != null
-        && themeService != null) {
-      responseBuilder.up();
-    } else {
-      responseBuilder.down();
-    }
-    return responseBuilder.build();
-  }
 }
