@@ -31,28 +31,6 @@ public class LiferayStarterResource {
   WorkspaceService workspaceService;
 
   @POST
-  @Path("/test")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response test(List<LiferayApp> modules) {
-
-    return Response.ok(modules).build();
-  }
-
-  @GET
-  @Path("/templates/java")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response javaTemplates() {
-    Map<String, String> templates = new HashMap<>();
-
-    for (LiferayAppTemplate template : LiferayAppTemplate.values()) {
-      templates.put(template.toString(), template.getName());
-    }
-
-    return Response.ok(templates).build();
-  }
-
-  @POST
   @Path("/{version}/workspace/{tool}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces("application/zip")
