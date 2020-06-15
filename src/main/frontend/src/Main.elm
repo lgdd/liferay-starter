@@ -273,7 +273,7 @@ update msg model =
                         app.name
                             == getDefaultAppName app.template
                             || app.name
-                            == (getDefaultAppName app.template ++ "-" ++ String.fromInt app.id)
+                            == (getDefaultAppName app.template ++ "-" ++ toLetters (app.id - 1) "")
                     then
                         if
                             not
