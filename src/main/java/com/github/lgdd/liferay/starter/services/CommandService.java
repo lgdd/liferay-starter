@@ -8,24 +8,45 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Executes commands to initialize Liferay Workspace and apps.
+ */
 @Singleton
 public class CommandService {
 
-  private static final Logger log = LoggerFactory.getLogger(CommandService.class);
-
+  /**
+   * Execute command and arguments.
+   *
+   * @param command command and arguments
+   * @throws CommandException if the command fails
+   */
   public void run(String... command) throws CommandException {
     var builder = new ProcessBuilder(command);
     execute(builder);
   }
 
+  /**
+   * Execute command and arguments in a given folder.
+   *
+   * @param directory folder where to execute the command
+   * @param command   command and arguments
+   * @throws CommandException if the command fails
+   */
   public void runInDirectory(File directory, String... command) throws CommandException {
     var builder = new ProcessBuilder(command);
     builder.directory(directory);
     execute(builder);
   }
 
+  /**
+   * Execute a process builder containing command and arguments.
+   *
+   * @param builder process builder containing  command and arguments
+   * @throws CommandException if the command fails
+   */
   private void execute(ProcessBuilder builder) throws CommandException {
     try {
+      debugCommand(builder.command());
       Process process = builder.start();
       var exitCode = process.waitFor();
 
@@ -39,6 +60,11 @@ public class CommandService {
     }
   }
 
+  /**
+   * Prints a given command if debug is enabled.
+   *
+   * @param command command and arguments
+   */
   private void debugCommand(List<String> command) {
     if (log.isDebugEnabled()) {
       StringBuilder builder = new StringBuilder(command.size());
@@ -49,5 +75,7 @@ public class CommandService {
       log.debug(builder.toString());
     }
   }
+
+  private static final Logger log = LoggerFactory.getLogger(CommandService.class);
 
 }

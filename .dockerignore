@@ -51,3 +51,6 @@ src/main/frontend/repl-temp-*
 
 # Dependency directories
 src/main/frontend/node_modules
+
+# Doc assets
+docs
