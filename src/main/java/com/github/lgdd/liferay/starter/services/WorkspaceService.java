@@ -102,7 +102,7 @@ public class WorkspaceService {
         });
   }
 
-  public static final String NODE_VERSION = "v12.18.0";
+  public static final String NODE_VERSION = "v10.15.3";
   public static final String NPM_VERSION = "6.14.4";
   public static final String MAVEN_RESOURCES_DIR = "/starter/maven";
 

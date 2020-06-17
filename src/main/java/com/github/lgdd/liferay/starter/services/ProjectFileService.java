@@ -141,8 +141,8 @@ public class ProjectFileService {
   /**
    * Create a pom file for a Theme.
    *
-   * @param appPath theme location
-   * @param theme theme parameters
+   * @param appPath   theme location
+   * @param theme     theme parameters
    * @param workspace Liferay Workspace parameters
    * @throws IOException if it fails to create the file
    */
@@ -189,6 +189,26 @@ public class ProjectFileService {
       String content = "ignore-scripts=false";
       Files.write(file.toPath(), content.getBytes(charset));
     }
+  }
+
+  /**
+   * Update liferay-theme.json with relative path to deploy folder.
+   *
+   * @param themePath theme location
+   * @throws IOException if it fails to update the file
+   */
+  public void updateLiferayThemeJson(Path themePath) throws IOException {
+    var filePath = Path.of(themePath.toAbsolutePath().toString(), "liferay-theme.json");
+    var charset = StandardCharsets.UTF_8;
+    var content = "{\n"
+        + "  \"LiferayTheme\": {\n"
+        + "    \"appServerPath\": \"../bundles/tomcat\",\n"
+        + "    \"deployPath\": \"../../bundles/deploy\",\n"
+        + "    \"deploymentStrategy\": \"LocalAppServer\",\n"
+        + "    \"url\": \"http://localhost:8080\"\n"
+        + "  }\n"
+        + "}\n";
+    Files.write(filePath, content.getBytes(charset));
   }
 
 }

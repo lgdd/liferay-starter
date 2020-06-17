@@ -52,7 +52,7 @@ USER node
 
 RUN npm i -g npm \
     && npm i -g yo \
-    && npm i -g old-generator-liferay-theme@npm:generator-liferay-theme@^8.0.0 \
+    && npm i -g generator-old-liferay-theme@npm:generator-liferay-theme@^8.0.0 \
     && npm i -g generator-liferay-theme \
     && npm i -g generator-liferay-js
 

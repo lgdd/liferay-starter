@@ -58,13 +58,13 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-deploy</id>
+                        <id>gulp-deploy</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>gulp</goal>
                         </goals>
                         <configuration>
-                            <arguments>run deploy</arguments>
+                            <arguments>deploy</arguments>
                         </configuration>
                     </execution>
                 </executions>

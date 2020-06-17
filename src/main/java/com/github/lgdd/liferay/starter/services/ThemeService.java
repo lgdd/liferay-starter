@@ -1,23 +1,14 @@
 package com.github.lgdd.liferay.starter.services;
 
-import static com.github.lgdd.liferay.starter.services.WorkspaceService.MAVEN_RESOURCES_DIR;
-import static com.github.lgdd.liferay.starter.services.WorkspaceService.NODE_VERSION;
-import static com.github.lgdd.liferay.starter.services.WorkspaceService.NPM_VERSION;
-
 import com.github.lgdd.liferay.starter.domain.LiferayApp;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.exception.CommandException;
 import com.github.lgdd.liferay.starter.util.StringUtil;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -81,6 +72,7 @@ public class ThemeService {
     );
 
     projectFileService.addNpmrcFile(themePath);
+    projectFileService.updateLiferayThemeJson(themePath);
 
     if ("maven".equalsIgnoreCase(tool)) {
       projectFileService.addPomToTheme(themePath, theme, workspace);
