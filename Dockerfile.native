@@ -1,0 +1,57 @@
+FROM oracle/graalvm-ce:20.0.0-java11 AS builder
+
+RUN yum update -y \
+    && yum install -y oracle-nodejs-release-el7 \
+    && yum install -y nodejs \
+    && rm -rf /var/cache/yum \
+    && gu install native-image \
+    && mkdir workspace \
+    && chown 1001 workspace \
+    && chmod "g+rwX" workspace \
+    && chown 1001:root workspace
+
+WORKDIR /workspace
+
+COPY pom.xml .
+COPY mvnw .
+COPY .mvn .mvn
+
+RUN ./mvnw dependency:copy-dependencies
+
+COPY src src
+COPY resources-config.json .
+
+RUN ./mvnw package -Pnative
+
+FROM frolvlad/alpine-glibc
+
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH=$PATH:/home/node/.npm-global/bin
+ENV PATH=$PATH:/home/node/.npm-global/lib
+ENV NODE_ENV=production
+
+RUN addgroup -g 1000 node \
+    && adduser -u 1000 -G node -s /bin/sh -D node \
+    && apk add --no-cache \
+    curl \
+    nodejs \
+    nodejs-npm \
+    openjdk11
+
+RUN curl -sSL https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/cli/installers/local | sh
+
+USER node
+
+RUN npm i -g yarn \
+    && yarn global add yo
+
+RUN yarn global add generator-old-liferay-theme@npm:generator-liferay-theme@^8.0.0 \
+    && yarn global add generator-liferay-theme \
+    && yarn global add generator-liferay-js
+
+COPY --from=builder /workspace/target/*-runner /usr/bin/liferay-starter
+
+USER node
+EXPOSE 8080
+
+CMD ["/usr/bin/liferay-starter", "-Dquarkus.http.host=0.0.0.0"]

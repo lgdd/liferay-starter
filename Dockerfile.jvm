@@ -1,23 +1,27 @@
 FROM azul/zulu-openjdk-alpine:11 AS builder
 
-ENV WORKSPACE=/workspace
-
 RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --no-cache \
     nodejs \
     nodejs-npm \
-    && mkdir $WORKSPACE \
-    && chown 1001 $WORKSPACE \
-    && chmod "g+rwX" $WORKSPACE \
-    && chown 1001:root $WORKSPACE
+    && mkdir workspace \
+    && chown 1001 workspace \
+    && chmod "g+rwX" workspace \
+    && chown 1001:root workspace
 
-COPY . $WORKSPACE
-WORKDIR $WORKSPACE
+WORKDIR /workspace
 
-RUN ./mvnw clean package
+COPY pom.xml .
+COPY mvnw .
+COPY .mvn .mvn
+
+RUN ./mvnw dependency:copy-dependencies
+
+COPY src src
+
+RUN ./mvnw package
 
 FROM azul/zulu-openjdk-alpine:11
 
-ENV WORKSPACE=/workspace
 ENV DEPLOYMENTS=/deployments
 ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
@@ -41,23 +45,19 @@ RUN addgroup -g 1000 node \
     && chown node $DEPLOYMENTS/run-java.sh \
     && chmod 540 $DEPLOYMENTS/run-java.sh
 
-RUN curl -sSL https://oss.sonatype.org/content/repositories/snapshots/biz/aQute/bnd/biz.aQute.jpm.run/4.0.0-SNAPSHOT/biz.aQute.jpm.run-4.0.0-20190612.143010-15.jar > tmp.jar \
-    && JPM_BIN_DIR=`java -jar tmp.jar -g init | grep -e "Bin[ \t]*dir" | awk '{print $3}'` \
-    && rm -f tmp.jar \
-    && ${JPM_BIN_DIR}/jpm install -f https://releases.liferay.com/tools/blade-cli/latest/blade.jar \
-    && blade update \
-    && blade version
+RUN curl -sSL https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/cli/installers/local | sh
 
 USER node
 
-RUN npm i -g npm \
-    && npm i -g yo \
-    && npm i -g generator-old-liferay-theme@npm:generator-liferay-theme@^8.0.0 \
-    && npm i -g generator-liferay-theme \
-    && npm i -g generator-liferay-js
+RUN npm i -g yarn \
+    && yarn global add yo
 
-COPY --from=builder "$WORKSPACE/target/lib/*" "$DEPLOYMENTS/lib/"
-COPY --from=builder "$WORKSPACE/target/*-runner.jar" "$DEPLOYMENTS/app.jar"
+RUN yarn global add generator-old-liferay-theme@npm:generator-liferay-theme@^8.0.0 \
+    && yarn global add generator-liferay-theme \
+    && yarn global add generator-liferay-js
+
+COPY --from=builder "/workspace/target/lib/*" "$DEPLOYMENTS/lib/"
+COPY --from=builder "/workspace/target/*-runner.jar" "$DEPLOYMENTS/app.jar"
 
 EXPOSE 8080
 

@@ -8,10 +8,10 @@ build:
 	./mvnw clean package
 
 docker:
-	docker build -f src/main/docker/Dockerfile.jvm -t lgdd/liferay-starter:latest-jvm .
+	docker build -f Dockerfile.jvm -t lgdd/liferay-starter:latest-jvm .
 
 dockerNative:
-	docker build -f src/main/docker/Dockerfile.native -t lgdd/liferay-starter .
+	docker build -f Dockerfile.native -t lgdd/liferay-starter .
 
 dockerRun:
 	docker run -it --rm -p 8000:8000 lgdd/liferay-starter:latest-jvm
