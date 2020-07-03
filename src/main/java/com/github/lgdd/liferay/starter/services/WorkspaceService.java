@@ -37,7 +37,7 @@ public class WorkspaceService {
           .updatePomFiles(workspacePath, projectGroupId, projectArtifactId, projectVersion);
     }
 
-    addJavaApps(apps, workspacePath);
+    addJavaApps(apps, workspacePath, workspace);
     addJavaScriptApps(apps, tool, workspace, workspacePath);
     addThemes(apps, version, tool, workspace, workspacePath);
 
@@ -55,12 +55,12 @@ public class WorkspaceService {
         .forEach(File::delete);
   }
 
-  public void addJavaApps(List<LiferayApp> apps, Path workspacePath) {
+  public void addJavaApps(List<LiferayApp> apps, Path workspacePath, LiferayWorkspace workspace) {
     apps.stream()
         .filter(app -> LiferayAppType.JAVA.equals(app.getType()))
         .forEach(app -> {
           try {
-            javaAppService.create(app, workspacePath.toAbsolutePath().toString());
+            javaAppService.create(workspace, app, workspacePath.toAbsolutePath().toString());
           } catch (Exception e) {
             e.printStackTrace();
           }
