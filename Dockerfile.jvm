@@ -45,9 +45,12 @@ RUN addgroup -g 1000 node \
     && chown node $DEPLOYMENTS/run-java.sh \
     && chmod 540 $DEPLOYMENTS/run-java.sh
 
-RUN curl -sSL https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/cli/installers/local | sh
-
 USER node
+
+WORKDIR /home/node/
+RUN curl -sSL https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/cli/installers/local | sh
+ENV PATH "$PATH:/home/node/jpm/bin"
+RUN blade version
 
 RUN npm i -g yarn \
     && yarn global add yo
