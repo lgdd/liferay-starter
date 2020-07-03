@@ -1,4 +1,17 @@
 # Changelog
+## [2.1.3] - 2020-07-03
+### Changed
+- Dockerfiles location and build stage
+### Fixed
+- Package name in generated Java apps
+## [2.1.2] - 2020-06-17
+### Added
+- Javadoc
+- docs folder to .dockerignore
+### Fixed
+- Remove temp test methods
+- Update default name when updating template
+- Theme generation and deployment for Liferay <= 7.1
 ## [2.1.1] - 2020-06-12
 ### Changed
 - Refacotring backend code.
