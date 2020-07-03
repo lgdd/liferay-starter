@@ -1,6 +1,7 @@
 package com.github.lgdd.liferay.starter.services;
 
 import com.github.lgdd.liferay.starter.domain.LiferayApp;
+import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.exception.CommandException;
 import com.github.lgdd.liferay.starter.util.StringUtil;
 import javax.inject.Inject;
@@ -17,12 +18,13 @@ public class JavaAppService {
   /**
    * Creates Java app in a Liferay Workspace with given parameters.
    *
+   * @param workspace  		Project data of the Liferay Workspace
    * @param app           Java app parameters
    * @param baseWorkspace Liferay Workspace where the Java app will be created
    * @throws CommandException if the creation command fails
    */
-  public void create(LiferayApp app, String baseWorkspace) throws CommandException {
-    var packageName = "org.acme.liferay." + app.getName().replaceAll("-", ".");
+  public void create(LiferayWorkspace workspace, LiferayApp app, String baseWorkspace) throws CommandException {
+    var packageName = workspace.getProjectGroupId() + "." + app.getName().replaceAll("-", ".");
     var className = StringUtil.capitalize(app.getName(), "-", false);
 
     commandService.run("blade", "create", "-t", app.getTemplate().getName(),
