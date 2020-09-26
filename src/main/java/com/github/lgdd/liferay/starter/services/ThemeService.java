@@ -3,6 +3,7 @@ package com.github.lgdd.liferay.starter.services;
 import com.github.lgdd.liferay.starter.domain.LiferayApp;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.exception.CommandException;
+import com.github.lgdd.liferay.starter.exception.UnsupportedLiferayVersionException;
 import com.github.lgdd.liferay.starter.util.StringUtil;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,27 +35,29 @@ public class ThemeService {
       String liferayVersion,
       String tool,
       LiferayWorkspace workspace,
-      Path baseWorkspace) throws IOException, CommandException {
+      Path baseWorkspace)
+      throws IOException, CommandException, UnsupportedLiferayVersionException {
 
     var themeName = StringUtil.capitalize(theme.getName(), "-", true);
+    var version = StringUtil.getLiferayVersionNumber(liferayVersion);
     File config = File.createTempFile(".generator-liferay-theme", ".json");
     BufferedWriter bw = new BufferedWriter(new FileWriter(config));
     bw.write("{\n" +
-        "  \"batchMode\": true,\n" +
-        "  \"answers\": {\n" +
-        "    \"*\": {\n" +
-        "      \"themeName\": \"" + themeName + "\",\n" +
-        "      \"themeId\": \"" + theme.getName() + "\",\n" +
-        "      \"liferayVersion\": \"" + liferayVersion + "\",\n" +
-        "      \"fontAwesome\": true\n" +
-        "    }\n" +
-        "  }\n" +
-        "}\n");
+                 "  \"batchMode\": true,\n" +
+                 "  \"answers\": {\n" +
+                 "    \"*\": {\n" +
+                 "      \"themeName\": \"" + themeName + "\",\n" +
+                 "      \"themeId\": \"" + theme.getName() + "\",\n" +
+                 "      \"liferayVersion\": \"" + version + "\",\n" +
+                 "      \"fontAwesome\": true\n" +
+                 "    }\n" +
+                 "  }\n" +
+                 "}\n");
     bw.close();
 
     var generator = "liferay-theme";
 
-    if ("7.0".equals(liferayVersion) || "7.1".equals(liferayVersion)) {
+    if ("7.0".equals(version) || "7.1".equals(version)) {
       generator = "old-" + generator;
     }
 

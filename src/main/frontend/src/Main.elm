@@ -59,7 +59,17 @@ tools =
 
 versions : List String
 versions =
-    [ "7.3", "7.2", "7.1", "7.0" ]
+    [ "dxp-7.3-ep6"
+    , "dxp-7.2-sp3"
+    , "dxp-7.1-sp4"
+    , "dxp-7.0-sp14"
+    , "portal-7.3-ga5"
+    , "portal-7.2-ga2"
+    , "portal-7.1-ga4"
+    , "portal-7.0-ga7"
+    , "commerce-2.0.7-7.2"
+    , "commerce-2.0.7-7.1"
+    ]
 
 
 javaTemplates : List String
@@ -585,7 +595,7 @@ viewSelectTool =
 viewSelectLiferayVersion : Html Msg
 viewSelectLiferayVersion =
     div [ class "form-group" ]
-        [ label [ for "selectLiferayVersion" ] [ text "Liferay Version" ]
+        [ label [ for "selectLiferayVersion" ] [ text "Liferay Product Version" ]
         , select [ id "selectLiferayVersion", class "form-control", onInput UpdateLiferayVersion ]
             (List.map viewOption versions)
         ]

@@ -35,7 +35,11 @@ public class LiferayStarterResource {
   @Path("/{version}/workspace/{tool}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces("application/zip")
-  public Response workspace(@PathParam String tool, @PathParam String version,
+  public Response workspace(
+      @PathParam
+          String tool,
+      @PathParam
+          String version,
       LiferayWorkspace workspace) {
 
     if (!validateWorkspaceParams(tool, version, workspace)) {
@@ -47,7 +51,7 @@ public class LiferayStarterResource {
           .createWorkspaceZip(tool, version, workspace);
 
       var filename = workspace.getProjectArtifactId().isEmpty() ?
-          StringUtil.toWorkspaceName(tool, version) : workspace.getProjectArtifactId();
+                     StringUtil.toWorkspaceName(tool, version) : workspace.getProjectArtifactId();
 
       Response.ResponseBuilder responseBuilder = Response.ok(workspaceZip);
       responseBuilder.type("application/zip");
@@ -68,10 +72,22 @@ public class LiferayStarterResource {
    * @return true if parameters are valid, false otherwise
    */
   private boolean validateWorkspaceParams(String tool, String version, LiferayWorkspace workspace) {
+
     var projectGroupId = workspace.getProjectGroupId();
     var projectArtifactId = workspace.getProjectArtifactId();
     var projectVersion = workspace.getProjectVersion();
-    var liferayVersions = Arrays.asList("7.3", "7.2", "7.1", "7.0");
+    var liferayVersions = Arrays.asList(
+        "dxp-7.3-ep6",
+        "dxp-7.2-sp3",
+        "dxp-7.1-sp4",
+        "dxp-7.0-sp14",
+        "portal-7.3-ga5",
+        "portal-7.2-ga2",
+        "portal-7.1-ga4",
+        "portal-7.0-ga7",
+        "commerce-2.0.7-7.2",
+        "commerce-2.0.7-7.1"
+    );
     if (!("gradle".equalsIgnoreCase(tool) || "maven".equalsIgnoreCase(tool))) {
       return false;
     }
