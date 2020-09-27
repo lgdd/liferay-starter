@@ -23,6 +23,7 @@ public enum LiferayAppTemplate {
   PORTLET_PROVIDER("portlet-provider"),
   PORTLET_TOOLBAR_CONTRIBUTOR("portlet-toolbar-contributor"),
   REST("rest"),
+  REST_BUILDER("rest-builder"),
   SERVICE_BUILDER("service-builder"),
   SIMULATION_PANEL_ENTRY("simulation-panel-entry"),
   SOCIAL_BOOKMARK("social-bookmark"),

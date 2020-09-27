@@ -74,7 +74,7 @@ versions =
 
 javaTemplates : List String
 javaTemplates =
-    [ "mvc-portlet", "service-builder", "rest", "panel-app", "api" ]
+    [ "mvc-portlet", "service-builder", "rest-builder", "panel-app", "rest", "api" ]
 
 
 javaScriptTemplates : List String
