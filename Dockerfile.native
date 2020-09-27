@@ -1,4 +1,4 @@
-FROM oracle/graalvm-ce:20.0.0-java11 AS builder
+FROM oracle/graalvm-ce:20.2.0-java11 AS builder
 
 RUN yum update -y \
     && yum install -y oracle-nodejs-release-el7 \
@@ -43,7 +43,7 @@ USER node
 WORKDIR /home/node/
 RUN curl -sSL https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/cli/installers/local | sh
 ENV PATH "$PATH:/home/node/jpm/bin"
-RUN blade version
+RUN blade update
 
 RUN npm i -g yarn \
     && yarn global add yo

@@ -1,4 +1,11 @@
 # Changelog
+## [2.2.0] - 2020-09-27
+### Added
+- REST Builder Template
+### Changed
+- Use Liferay Product Version to support DXP, Portal and Commerce
+- Upgrade Quarkus to v1.8.1.Final
+- Upgrade GraalVM to v22.2.0
 ## [2.1.3] - 2020-07-03
 ### Changed
 - Dockerfiles location and build stage

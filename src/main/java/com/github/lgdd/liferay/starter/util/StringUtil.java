@@ -1,5 +1,8 @@
 package com.github.lgdd.liferay.starter.util;
 
+import com.github.lgdd.liferay.starter.exception.UnsupportedLiferayVersionException;
+import java.util.Arrays;
+
 /**
  * Utility class to transform strings.
  */
@@ -14,16 +17,19 @@ public abstract class StringUtil {
    * @return capitalized words
    */
   public static String capitalize(String str, String separator, boolean spaced) {
-    String words[] = str.split(separator);
-    String capitalizeWord = "";
+
+    String[] words = str.split(separator);
+    StringBuilder capitalizeWord = new StringBuilder();
     String space = spaced ? " " : "";
     for (String w : words) {
       String first = w.substring(0, 1);
       String afterfirst = w.substring(1);
-      capitalizeWord += first.toUpperCase() + afterfirst + space;
+      capitalizeWord.append(first.toUpperCase())
+                    .append(afterfirst)
+                    .append(space);
     }
 
-    return capitalizeWord.trim();
+    return capitalizeWord.toString().trim();
   }
 
   /**
@@ -34,6 +40,7 @@ public abstract class StringUtil {
    * @return a workspace name
    */
   public static String toWorkspaceName(String tool, String version) {
+
     return tool + "-liferay-workspace-" + version;
   }
 
@@ -44,6 +51,18 @@ public abstract class StringUtil {
    * @return the artifact ID of the theme
    */
   public static String getThemeArtifactId(String themeName) {
+
     return themeName.endsWith("-theme") ? themeName : themeName + "-theme";
+  }
+
+  public static String getLiferayVersionNumber(String liferayProductVersion)
+      throws UnsupportedLiferayVersionException {
+
+    for (String version : Arrays.asList("7.0", "7.1", "7.2", "7.3")) {
+      if (liferayProductVersion.contains(version)) {
+        return version;
+      }
+    }
+    throw new UnsupportedLiferayVersionException();
   }
 }

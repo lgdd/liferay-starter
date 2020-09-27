@@ -4,20 +4,22 @@ import com.github.lgdd.liferay.starter.domain.LiferayApp;
 import com.github.lgdd.liferay.starter.domain.LiferayAppType;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.util.StringUtil;
-
-import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class WorkspaceService {
 
   public byte[] createWorkspaceZip(String tool, String version, LiferayWorkspace workspace)
       throws Exception {
+
     var projectGroupId = workspace.getProjectGroupId();
     var projectArtifactId = workspace.getProjectArtifactId();
     var projectVersion = workspace.getProjectVersion();
@@ -48,19 +50,25 @@ public class WorkspaceService {
     return baos.toByteArray();
   }
 
-  private void clean(Path buildPath) throws IOException {
+  private void clean(Path buildPath)
+      throws IOException {
+
     Files.walk(buildPath)
-        .sorted(Comparator.reverseOrder())
-        .map(Path::toFile)
-        .forEach(File::delete);
+         .sorted(Comparator.reverseOrder())
+         .map(Path::toFile)
+         .forEach(File::delete);
   }
 
   public void addJavaApps(List<LiferayApp> apps, Path workspacePath, LiferayWorkspace workspace) {
+
     apps.stream()
         .filter(app -> LiferayAppType.JAVA.equals(app.getType()))
         .forEach(app -> {
           try {
-            javaAppService.create(workspace, app, workspacePath.toAbsolutePath().toString());
+            javaAppService.create(
+                workspace, app,
+                workspacePath.resolve("modules").toAbsolutePath().toString()
+            );
           } catch (Exception e) {
             e.printStackTrace();
           }

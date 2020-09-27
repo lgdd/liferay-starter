@@ -43,9 +43,8 @@ public class ProjectFileService {
     var parentPom = workspacePath.resolve("pom.xml");
     var modulesPom = workspacePath.resolve("modules/pom.xml");
     var themesPom = workspacePath.resolve("themes/pom.xml");
-    var warsPm = workspacePath.resolve("wars/pom.xml");
 
-    var pomPaths = Arrays.asList(parentPom, modulesPom, themesPom, warsPm);
+    var pomPaths = Arrays.asList(parentPom, modulesPom, themesPom);
 
     for (Path pomPath : pomPaths) {
       updatePomFile(pomPath, projectGroupId, projectArtifactId, projectVersion);
