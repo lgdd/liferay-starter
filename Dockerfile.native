@@ -1,4 +1,4 @@
-FROM oracle/graalvm-ce:20.0.0-java11 AS builder
+FROM oracle/graalvm-ce:20.2.0-java11 AS builder
 
 RUN yum update -y \
     && yum install -y oracle-nodejs-release-el7 \
