@@ -1,4 +1,9 @@
 # Changelog
+## [2.2.1] - 2020-10-13
+### Added
+- Support for DXP 7.3-GA1 and Portal 7.3-GA6
+### Changed
+- Update blade to v4.0.5
 ## [2.2.0] - 2020-09-27
 ### Added
 - REST Builder Template
