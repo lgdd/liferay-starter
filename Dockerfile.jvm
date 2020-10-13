@@ -50,7 +50,8 @@ USER node
 WORKDIR /home/node/
 RUN curl -sSL https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/cli/installers/local | sh
 ENV PATH "$PATH:/home/node/jpm/bin"
-RUN blade update
+RUN blade version && \
+    blade update
 
 RUN npm i -g yarn \
     && yarn global add yo
