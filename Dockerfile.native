@@ -1,9 +1,8 @@
-FROM oracle/graalvm-ce:20.2.0-java11 AS builder
+FROM ghcr.io/graalvm/graalvm-ce:20.3.1.2 AS builder
 
-RUN yum update -y \
-    && yum install -y oracle-nodejs-release-el7 \
-    && yum install -y nodejs \
-    && rm -rf /var/cache/yum \
+RUN microdnf update -y \
+    && microdnf install -y nodejs \
+    && microdnf clean all \
     && gu install native-image \
     && mkdir workspace \
     && chown 1001 workspace \
