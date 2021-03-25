@@ -77,11 +77,11 @@ public class LiferayStarterResource {
     var projectArtifactId = workspace.getProjectArtifactId();
     var projectVersion = workspace.getProjectVersion();
     var liferayVersions = Arrays.asList(
-        "dxp-7.3-ga1",
-        "dxp-7.2-sp3",
-        "dxp-7.1-sp4",
-        "dxp-7.0-sp14",
-        "portal-7.3-ga6",
+        "dxp-7.3-sp1",
+        "dxp-7.2-sp4",
+        "dxp-7.1-sp5",
+        "dxp-7.0-sp15",
+        "portal-7.3-ga7",
         "portal-7.2-ga2",
         "portal-7.1-ga4",
         "portal-7.0-ga7",
