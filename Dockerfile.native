@@ -42,8 +42,8 @@ USER node
 WORKDIR /home/node/
 RUN curl -sSL https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/cli/installers/local | sh
 ENV PATH "$PATH:/home/node/jpm/bin"
-RUN blade version && \
-    blade update
+RUN jpm remove blade && \
+    jpm install https://repository.liferay.com/nexus/content/repositories/liferay-public-snapshots/com/liferay/blade/com.liferay.blade.cli/4.0.8-SNAPSHOT/com.liferay.blade.cli-4.0.8-20210427.171152-5.jar
 
 RUN npm i -g yarn \
     && yarn global add yo

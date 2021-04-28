@@ -58,7 +58,7 @@ public abstract class StringUtil {
   public static String getLiferayVersionNumber(String liferayProductVersion)
       throws UnsupportedLiferayVersionException {
 
-    for (String version : Arrays.asList("7.0", "7.1", "7.2", "7.3")) {
+    for (String version : Arrays.asList("7.0", "7.1", "7.2", "7.3", "7.4")) {
       if (liferayProductVersion.contains(version)) {
         return version;
       }
