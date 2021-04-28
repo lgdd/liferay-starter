@@ -1,4 +1,9 @@
 # Changelog
+## [2.4.0] - 2021-04-28
+### Added
+- Support for Portal 7.4-GA1
+### Fixed
+- Service builder command for Gradle (buildService)
 ## [2.2.1] - 2020-10-13
 ### Added
 - Support for DXP 7.3-GA1 and Portal 7.3-GA6
