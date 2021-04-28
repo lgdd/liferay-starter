@@ -1008,7 +1008,7 @@ getBuildDeployCmd model wrapper =
 
         serviceBuilderCmd =
             if model.workspace.tool == "gradle" then
-                "buildService"
+                getServiceBuilderGradleGoals serviceBuilders
 
             else
                 getServiceBuilderMavenGoal serviceBuilders
@@ -1032,9 +1032,20 @@ getServiceBuilderMavenGoal apps =
     let
         serviceBuilderPaths =
             List.map getServiceBuilderRelativePath apps
-                |> String.join ","
+                |> String.join " "
     in
     "service-builder:build --projects " ++ serviceBuilderPaths
+
+
+getServiceBuilderGradleGoals : List LiferayApp -> String
+getServiceBuilderGradleGoals apps =
+    List.map getServiceBuilderGradleGoal apps
+        |> String.join " "
+
+
+getServiceBuilderGradleGoal : LiferayApp -> String
+getServiceBuilderGradleGoal app =
+    ":modules:" ++ app.name ++ ":" ++ app.name ++ "-service:buildService"
 
 
 getServiceBuilderRelativePath : LiferayApp -> String
