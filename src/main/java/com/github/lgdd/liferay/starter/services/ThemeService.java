@@ -1,6 +1,7 @@
 package com.github.lgdd.liferay.starter.services;
 
 import com.github.lgdd.liferay.starter.domain.LiferayApp;
+import com.github.lgdd.liferay.starter.domain.LiferayAppTemplate;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.exception.CommandException;
 import com.github.lgdd.liferay.starter.exception.UnsupportedLiferayVersionException;
@@ -63,6 +64,10 @@ public class ThemeService {
 
     if ("7.0".equals(version) || "7.1".equals(version)) {
       generator = "old-" + generator;
+    } else {
+      if (LiferayAppTemplate.CLASSIC.equals(theme.getTemplate())) {
+        generator = "liferay-theme:classic";
+      }
     }
 
     commandService.runInDirectory(baseWorkspace.resolve("themes").toFile()

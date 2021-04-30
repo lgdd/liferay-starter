@@ -83,6 +83,11 @@ javaScriptTemplates =
     [ "react", "vuejs", "angular", "vanilla" ]
 
 
+themeTemplates : List String
+themeTemplates =
+    [ "classic", "unstyled" ]
+
+
 type alias Flags =
     { apiHost : String
     , platform : String
@@ -211,22 +216,22 @@ update msg model =
                     case appType of
                         Java ->
                             { id = newId
-                            , name = getDefaultAppName getDefaultJavaTemplate
+                            , name = getDefaultAppName Java getDefaultJavaTemplate
                             , template = getDefaultJavaTemplate
                             , appType = Java
                             }
 
                         JavaScript ->
                             { id = newId
-                            , name = getDefaultAppName getDefaultJavaScriptTemplate
+                            , name = getDefaultAppName JavaScript getDefaultJavaScriptTemplate
                             , template = getDefaultJavaScriptTemplate
                             , appType = JavaScript
                             }
 
                         Theme ->
                             { id = newId
-                            , name = getDefaultAppName Nothing
-                            , template = Nothing
+                            , name = getDefaultAppName Theme Nothing
+                            , template = Just "classic"
                             , appType = Theme
                             }
 
@@ -282,21 +287,21 @@ update msg model =
                 newName =
                     if
                         app.name
-                            == getDefaultAppName app.template
+                            == getDefaultAppName app.appType (Just newTemplate)
                             || app.name
-                            == (getDefaultAppName app.template ++ "-" ++ toLetters (app.id - 1) "")
+                            == (getDefaultAppName app.appType (Just newTemplate) ++ "-" ++ toLetters (app.id - 1) "")
                     then
                         if
                             not
                                 (Dict.values model.workspace.apps
-                                    |> List.filter (\a -> a.name == getDefaultAppName (Just newTemplate))
+                                    |> List.filter (\a -> a.name == getDefaultAppName app.appType (Just newTemplate))
                                     |> List.isEmpty
                                 )
                         then
-                            getDefaultAppName (Just newTemplate) ++ "-" ++ toLetters (app.id - 1) ""
+                            getDefaultAppName app.appType (Just newTemplate) ++ "-" ++ toLetters (app.id - 1) ""
 
                         else
-                            getDefaultAppName (Just newTemplate)
+                            getDefaultAppName app.appType (Just newTemplate)
 
                     else
                         app.name
@@ -518,7 +523,14 @@ viewApp model id_ app =
                     div [ class "col" ] [ viewJavaScriptTemplates app ]
 
                 Theme ->
-                    text ""
+                    if
+                        String.contains "7.0" model.workspace.liferayVersion
+                            || String.contains "7.1" model.workspace.liferayVersion
+                    then
+                        text ""
+
+                    else
+                        div [ class "col" ] [ viewThemeTemplates app ]
     in
     div [ class "row" ]
         [ div [ class "col" ]
@@ -549,7 +561,7 @@ viewApp model id_ app =
 viewJavaTemplates : LiferayApp -> Html Msg
 viewJavaTemplates app =
     div [ class "form-group" ]
-        [ select [ id "selectLiferayVersion", class "form-control", onInput (UpdateAppTemplate app) ]
+        [ select [ id "selectJavaTemplate", class "form-control", onInput (UpdateAppTemplate app) ]
             (List.map viewOption javaTemplates)
         ]
 
@@ -557,8 +569,16 @@ viewJavaTemplates app =
 viewJavaScriptTemplates : LiferayApp -> Html Msg
 viewJavaScriptTemplates app =
     div [ class "form-group" ]
-        [ select [ id "selectLiferayVersion", class "form-control", onInput (UpdateAppTemplate app) ]
+        [ select [ id "selectJavaScriptTemplate", class "form-control", onInput (UpdateAppTemplate app) ]
             (List.map viewOption javaScriptTemplates)
+        ]
+
+
+viewThemeTemplates : LiferayApp -> Html Msg
+viewThemeTemplates app =
+    div [ class "form-group" ]
+        [ select [ id "selectThemeTemplate", class "form-control", onInput (UpdateAppTemplate app) ]
+            (List.map viewOption themeTemplates)
         ]
 
 
@@ -861,13 +881,25 @@ getDefaultJavaScriptTemplate =
     Array.get 0 (Array.fromList javaScriptTemplates)
 
 
-getDefaultAppName : Maybe String -> String
-getDefaultAppName template =
-    case template of
-        Just name ->
-            "my-" ++ name
+getDefaultAppName : LiferayAppType -> Maybe String -> String
+getDefaultAppName appType template =
+    let
+        templateName =
+            case template of
+                Just name ->
+                    "my-" ++ name
 
-        Nothing ->
+                Nothing ->
+                    "my-app"
+    in
+    case appType of
+        Java ->
+            templateName
+
+        JavaScript ->
+            templateName
+
+        Theme ->
             "my-theme"
 
 

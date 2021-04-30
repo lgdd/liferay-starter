@@ -5,13 +5,17 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 @RegisterForReflection
 public enum LiferayAppTemplate {
 
-  THEME("theme"),
+  // Theme Templates
+  CLASSIC("classic"),
+  UNSTYLED("unstyled"),
 
+  // JavaScript Templates
   REACT("react"),
   VUEJS("vuejs"),
   ANGULAR("angular"),
   VANILLA("vanilla"),
 
+  // Java Templates
   ACTIVATOR("activator"),
   API("api"),
   CONTROL_MENU_ENTRY("control-menu-entry"),
