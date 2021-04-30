@@ -1,4 +1,9 @@
 # Changelog
+## [2.5.0] - 2021-04-30
+### Added
+- Support for classic themes
+### Fixed
+- Theme generation for 7.4 (temporarily generate 7.3 theme, waiting for official update)
 ## [2.4.0] - 2021-04-28
 ### Added
 - Support for Portal 7.4-GA1
