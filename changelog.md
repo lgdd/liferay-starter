@@ -1,4 +1,7 @@
 # Changelog
+## [2.5.1] - 2021-04-30
+### Changed
+- Update blade version to 4.0.9-snapshot
 ## [2.5.0] - 2021-04-30
 ### Added
 - Support for classic themes
