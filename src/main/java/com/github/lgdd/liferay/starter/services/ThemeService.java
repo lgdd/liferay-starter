@@ -42,6 +42,10 @@ public class ThemeService {
     var version = StringUtil.getLiferayVersionNumber(liferayVersion);
     File config = File.createTempFile(".generator-liferay-theme", ".json");
     BufferedWriter bw = new BufferedWriter(new FileWriter(config));
+    // waiting for generator-liferay-theme to support 7.4
+    if ("7.4".equals(version)) {
+      version = "7.3";
+    }
     bw.write("{\n" +
                  "  \"batchMode\": true,\n" +
                  "  \"answers\": {\n" +
