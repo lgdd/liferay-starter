@@ -1,4 +1,7 @@
 # Changelog
+## [2.5.2] - 2021-06-24
+### Changed
+- Update Liferay Portal 7.4 to GA2
 ## [2.5.1] - 2021-04-30
 ### Changed
 - Update blade version to 4.0.9-snapshot
