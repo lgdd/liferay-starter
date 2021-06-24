@@ -59,7 +59,7 @@ tools =
 
 versions : List String
 versions =
-    [ "portal-7.4-ga1"
+    [ "portal-7.4-ga2"
     , "dxp-7.3-sp1"
     , "dxp-7.2-sp4"
     , "dxp-7.1-sp5"
