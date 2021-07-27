@@ -1,4 +1,7 @@
 # Changelog
+## [2.5.3] - 2021-07-27
+### Changed
+- Update Liferay Portal 7.3 to GA8
 ## [2.5.2] - 2021-06-24
 ### Changed
 - Update Liferay Portal 7.4 to GA2
