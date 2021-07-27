@@ -64,7 +64,7 @@ versions =
     , "dxp-7.2-sp4"
     , "dxp-7.1-sp5"
     , "dxp-7.0-sp15"
-    , "portal-7.3-ga7"
+    , "portal-7.3-ga8"
     , "portal-7.2-ga2"
     , "portal-7.1-ga4"
     , "portal-7.0-ga7"
