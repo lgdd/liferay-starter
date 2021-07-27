@@ -34,7 +34,7 @@ RUN addgroup -g 1000 node \
     && apk add --no-cache \
     curl \
     nodejs \
-    nodejs-npm \
+    npm \
     openjdk11
 
 USER node
@@ -43,7 +43,7 @@ WORKDIR /home/node/
 RUN curl -sSL https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/cli/installers/local | sh
 ENV PATH "$PATH:/home/node/jpm/bin"
 RUN jpm remove blade && \
-    jpm install https://repository.liferay.com/nexus/content/repositories/liferay-public-snapshots/com/liferay/blade/com.liferay.blade.cli/4.0.9-SNAPSHOT/com.liferay.blade.cli-4.0.9-20210614.142240-7.jar
+    jpm install https://repository.liferay.com/nexus/content/repositories/liferay-public-releases/com/liferay/blade/com.liferay.blade.cli/4.0.9/com.liferay.blade.cli-4.0.9.jar
 
 RUN npm i -g yarn \
     && yarn global add yo
