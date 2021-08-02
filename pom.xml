@@ -7,7 +7,7 @@
   <version>2.5.3</version>
   <properties>
     <blade-cli.version>3.9.2</blade-cli.version>
-    <commons-compress.version>1.19</commons-compress.version>
+    <commons-compress.version>1.21</commons-compress.version>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <frontend-plugin.version>1.9.1</frontend-plugin.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
