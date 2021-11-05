@@ -26,7 +26,7 @@ public class LiferayStarterResource {
    * Generates a Liferay Workspace given project parameters.
    *
    * @param tool      Maven or Gradle
-   * @param version   Liferay version (7.0, 7.1, 7.2 or 7.3)
+   * @param version   Liferay version (7.0, 7.1, 7.2, 7.3 or 7.4)
    * @param workspace Project parameters
    * @return zip file containing a Liferay Workspace
    * @see LiferayWorkspace
@@ -67,7 +67,7 @@ public class LiferayStarterResource {
    * Checks if project parameters are valid.
    *
    * @param tool      Maven or Gradle
-   * @param version   Liferay version (7.0, 7.1, 7.2 or 7.3)
+   * @param version   Liferay version (7.0, 7.1, 7.2, 7.3 or 7.4)
    * @param workspace Project parameters
    * @return true if parameters are valid, false otherwise
    */
@@ -77,7 +77,8 @@ public class LiferayStarterResource {
     var projectArtifactId = workspace.getProjectArtifactId();
     var projectVersion = workspace.getProjectVersion();
     var liferayVersions = Arrays.asList(
-        "portal-7.4-ga2",
+        "portal-7.4-ga4",
+        "dxp-7.4-ga1",
         "dxp-7.3-sp1",
         "dxp-7.2-sp4",
         "dxp-7.1-sp5",
