@@ -2,8 +2,6 @@
 
 Quickly generate & download your Liferay workspace. Inspired by [start.spring.io](https://start.spring.io/) and [code.quarkus.io](https://code.quarkus.io/).
 
-Use it online: https://liferay-starter.lgdd.io/.
-
 ![preview](https://github.com/lgdd/doc-assets/blob/main/liferay-starter/preview.jpg?raw=true)
 
 ## Try it locally
