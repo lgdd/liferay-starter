@@ -4,6 +4,9 @@ import com.github.lgdd.liferay.starter.domain.LiferayApp;
 import com.github.lgdd.liferay.starter.domain.LiferayAppType;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.util.StringUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -11,14 +14,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public class WorkspaceService {
 
   public byte[] createWorkspaceZip(String tool, String version, LiferayWorkspace workspace)
-      throws Exception {
+          throws Exception {
 
     var projectGroupId = workspace.getProjectGroupId();
     var projectArtifactId = workspace.getProjectArtifactId();
@@ -26,17 +27,17 @@ public class WorkspaceService {
     var apps = workspace.getApps();
     var buildPath = Files.createTempDirectory("liferayWorkspaces--");
     var workspaceName =
-        projectArtifactId.isEmpty() ? StringUtil.toWorkspaceName(tool, version) : projectArtifactId;
+            projectArtifactId.isEmpty() ? StringUtil.toWorkspaceName(tool, version) : projectArtifactId;
 
     commandService.runInDirectory(buildPath.toFile()
-        , "blade", "init", "-b", tool, "-v", version, workspaceName);
+            , "blade", "init", "-b", tool, "-v", version, workspaceName);
 
     var baos = new ByteArrayOutputStream();
     var workspacePath = buildPath.resolve(workspaceName);
 
     if ("maven".equalsIgnoreCase(tool)) {
       projectFileService
-          .updatePomFiles(workspacePath, projectGroupId, projectArtifactId, projectVersion);
+              .updatePomFiles(workspacePath, projectGroupId, projectArtifactId, projectVersion);
     }
 
     addJavaApps(apps, workspacePath, workspace);
@@ -51,63 +52,63 @@ public class WorkspaceService {
   }
 
   private void clean(Path buildPath)
-      throws IOException {
+          throws IOException {
 
     Files.walk(buildPath)
-         .sorted(Comparator.reverseOrder())
-         .map(Path::toFile)
-         .forEach(File::delete);
+            .sorted(Comparator.reverseOrder())
+            .map(Path::toFile)
+            .forEach(File::delete);
   }
 
   public void addJavaApps(List<LiferayApp> apps, Path workspacePath, LiferayWorkspace workspace) {
 
     apps.stream()
-        .filter(app -> LiferayAppType.JAVA.equals(app.getType()))
-        .forEach(app -> {
-          try {
-            javaAppService.create(
-                workspace, app,
-                workspacePath.resolve("modules").toAbsolutePath().toString()
-            );
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        });
+            .filter(app -> LiferayAppType.JAVA.equals(app.getType()))
+            .forEach(app -> {
+              try {
+                javaAppService.create(
+                        workspace, app,
+                        workspacePath.resolve("modules").toAbsolutePath().toString()
+                );
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            });
   }
 
   public void addJavaScriptApps(
-      List<LiferayApp> apps,
-      String tool,
-      LiferayWorkspace workspace,
-      Path workspacePath) {
+          List<LiferayApp> apps,
+          String tool,
+          LiferayWorkspace workspace,
+          Path workspacePath) {
 
     apps.stream()
-        .filter(app -> LiferayAppType.JAVASCRIPT.equals(app.getType()))
-        .forEach(app -> {
-          try {
-            javaScriptAppService.create(app, tool, workspace, workspacePath);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        });
+            .filter(app -> LiferayAppType.JAVASCRIPT.equals(app.getType()))
+            .forEach(app -> {
+              try {
+                javaScriptAppService.create(app, tool, workspace, workspacePath);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            });
   }
 
   public void addThemes(
-      List<LiferayApp> apps,
-      String version,
-      String tool,
-      LiferayWorkspace workspace,
-      Path workspacePath) {
+          List<LiferayApp> apps,
+          String version,
+          String tool,
+          LiferayWorkspace workspace,
+          Path workspacePath) {
 
     apps.stream()
-        .filter(app -> LiferayAppType.THEME.equals(app.getType()))
-        .forEach(theme -> {
-          try {
-            themeService.create(theme, version, tool, workspace, workspacePath);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        });
+            .filter(app -> LiferayAppType.THEME.equals(app.getType()))
+            .forEach(theme -> {
+              try {
+                themeService.create(theme, version, tool, workspace, workspacePath);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            });
   }
 
   public static final String NODE_VERSION = "v10.15.3";

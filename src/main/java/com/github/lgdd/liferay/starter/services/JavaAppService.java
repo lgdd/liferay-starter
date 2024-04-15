@@ -4,8 +4,8 @@ import com.github.lgdd.liferay.starter.domain.LiferayApp;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.exception.CommandException;
 import com.github.lgdd.liferay.starter.util.StringUtil;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Creates Java apps for a Liferay workspace.
@@ -18,7 +18,7 @@ public class JavaAppService {
   /**
    * Creates Java app in a Liferay Workspace with given parameters.
    *
-   * @param workspace  		Project data of the Liferay Workspace
+   * @param workspace     Project data of the Liferay Workspace
    * @param app           Java app parameters
    * @param baseWorkspace Liferay Workspace where the Java app will be created
    * @throws CommandException if the creation command fails
@@ -28,7 +28,7 @@ public class JavaAppService {
     var className = StringUtil.capitalize(app.getName(), "-", false);
 
     commandService.run("blade", "create", "-t", app.getTemplate().getName(),
-        "-p", packageName, "-c", className, "--base", baseWorkspace, app.getName());
+            "-p", packageName, "-c", className, "--base", baseWorkspace, app.getName());
   }
 
   @Inject

@@ -3,15 +3,17 @@ package com.github.lgdd.liferay.starter;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.services.WorkspaceService;
 import com.github.lgdd.liferay.starter.util.StringUtil;
+
 import java.util.Arrays;
 import java.util.regex.Pattern;
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +38,11 @@ public class LiferayStarterResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces("application/zip")
   public Response workspace(
-      @PathParam
+          @PathParam
           String tool,
-      @PathParam
+          @PathParam
           String version,
-      LiferayWorkspace workspace) {
+          LiferayWorkspace workspace) {
 
     if (!validateWorkspaceParams(tool, version, workspace)) {
       return Response.status(Response.Status.BAD_REQUEST).build();
@@ -48,10 +50,10 @@ public class LiferayStarterResource {
 
     try {
       var workspaceZip = workspaceService
-          .createWorkspaceZip(tool, version, workspace);
+              .createWorkspaceZip(tool, version, workspace);
 
       var filename = workspace.getProjectArtifactId().isEmpty() ?
-                     StringUtil.toWorkspaceName(tool, version) : workspace.getProjectArtifactId();
+              StringUtil.toWorkspaceName(tool, version) : workspace.getProjectArtifactId();
 
       Response.ResponseBuilder responseBuilder = Response.ok(workspaceZip);
       responseBuilder.type("application/zip");
@@ -77,18 +79,18 @@ public class LiferayStarterResource {
     var projectArtifactId = workspace.getProjectArtifactId();
     var projectVersion = workspace.getProjectVersion();
     var liferayVersions = Arrays.asList(
-        "portal-7.4-ga4",
-        "dxp-7.4-ga1",
-        "dxp-7.3-sp1",
-        "dxp-7.2-sp4",
-        "dxp-7.1-sp5",
-        "dxp-7.0-sp15",
-        "portal-7.3-ga8",
-        "portal-7.2-ga2",
-        "portal-7.1-ga4",
-        "portal-7.0-ga7",
-        "commerce-2.0.7-7.2",
-        "commerce-2.0.7-7.1"
+            "portal-7.4-ga4",
+            "dxp-7.4-ga1",
+            "dxp-7.3-sp1",
+            "dxp-7.2-sp4",
+            "dxp-7.1-sp5",
+            "dxp-7.0-sp15",
+            "portal-7.3-ga8",
+            "portal-7.2-ga2",
+            "portal-7.1-ga4",
+            "portal-7.0-ga7",
+            "commerce-2.0.7-7.2",
+            "commerce-2.0.7-7.1"
     );
     if (!("gradle".equalsIgnoreCase(tool) || "maven".equalsIgnoreCase(tool))) {
       return false;

@@ -6,13 +6,14 @@ import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.exception.CommandException;
 import com.github.lgdd.liferay.starter.exception.UnsupportedLiferayVersionException;
 import com.github.lgdd.liferay.starter.util.StringUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Creates a Theme for a Liferay workspace.

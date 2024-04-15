@@ -1,10 +1,12 @@
 package com.github.lgdd.liferay.starter.services;
 
 import com.github.lgdd.liferay.starter.exception.CommandException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import javax.inject.Singleton;
+
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

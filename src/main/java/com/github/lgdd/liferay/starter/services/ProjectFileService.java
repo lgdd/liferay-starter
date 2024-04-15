@@ -8,6 +8,8 @@ import com.github.lgdd.liferay.starter.domain.LiferayApp;
 import com.github.lgdd.liferay.starter.domain.LiferayAppType;
 import com.github.lgdd.liferay.starter.domain.LiferayWorkspace;
 import com.github.lgdd.liferay.starter.util.StringUtil;
+import jakarta.inject.Singleton;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.inject.Singleton;
 
 /**
  * Update project files with given project parameters.
@@ -35,10 +36,10 @@ public class ProjectFileService {
    * @throws IOException if it fails to update the files
    */
   public void updatePomFiles(
-      Path workspacePath,
-      String projectGroupId,
-      String projectArtifactId,
-      String projectVersion) throws IOException {
+          Path workspacePath,
+          String projectGroupId,
+          String projectArtifactId,
+          String projectVersion) throws IOException {
 
     var parentPom = workspacePath.resolve("pom.xml");
     var modulesPom = workspacePath.resolve("modules/pom.xml");
@@ -61,21 +62,21 @@ public class ProjectFileService {
    * @throws IOException if it fails to update the file
    */
   public void updatePomFile(
-      Path pomPath,
-      String projectGroupId,
-      String projectArtifactId,
-      String projectVersion) throws IOException {
+          Path pomPath,
+          String projectGroupId,
+          String projectArtifactId,
+          String projectVersion) throws IOException {
 
     var charset = StandardCharsets.UTF_8;
 
     var content = Files.readString(pomPath, charset);
     content = content.replaceAll("" +
-            "<groupId>" + projectArtifactId.replaceAll("-", ".") + "</groupId>",
-        "<groupId>" + projectGroupId + "</groupId>");
+                    "<groupId>" + projectArtifactId.replaceAll("-", ".") + "</groupId>",
+            "<groupId>" + projectGroupId + "</groupId>");
 
     content = content.replaceAll("" +
-            "<version>1.0.0</version>",
-        "<version>" + projectVersion + "</version>");
+                    "<version>1.0.0</version>",
+            "<version>" + projectVersion + "</version>");
 
     Files.write(pomPath, content.getBytes(charset));
   }
@@ -91,16 +92,16 @@ public class ProjectFileService {
     var charset = StandardCharsets.UTF_8;
     var content = Files.readString(modulesPomPath, charset);
     var artifactId = LiferayAppType.THEME.equals(app.getType()) ?
-        StringUtil.getThemeArtifactId(app.getName()) : app.getName();
+            StringUtil.getThemeArtifactId(app.getName()) : app.getName();
 
     if (!content.contains("</modules>")) {
       content = content.replaceAll("</packaging>",
-          "</packaging>\n\n\t<modules>\n\t</modules>\n");
+              "</packaging>\n\n\t<modules>\n\t</modules>\n");
     }
 
     content = content
-        .replaceAll("</modules>",
-            "\t<module>" + artifactId + "</module>\n\t</modules>");
+            .replaceAll("</modules>",
+                    "\t<module>" + artifactId + "</module>\n\t</modules>");
     Files.write(modulesPomPath, content.getBytes(charset));
   }
 
@@ -113,13 +114,13 @@ public class ProjectFileService {
    * @throws IOException if it fails to create the pom file
    */
   public void addPomToJavaScriptApp(Path appPath, LiferayApp app, LiferayWorkspace workspace)
-      throws IOException {
+          throws IOException {
     var pomContent = new BufferedReader(
-        new InputStreamReader(
-            WorkspaceService.class
-                .getResourceAsStream(MAVEN_RESOURCES_DIR + "/js-pom.xml")))
-        .lines()
-        .collect(Collectors.joining("\n"));
+            new InputStreamReader(
+                    WorkspaceService.class
+                            .getResourceAsStream(MAVEN_RESOURCES_DIR + "/js-pom.xml")))
+            .lines()
+            .collect(Collectors.joining("\n"));
 
     var file = new File(appPath.toAbsolutePath().toString(), "pom.xml");
     var charset = StandardCharsets.UTF_8;
@@ -130,7 +131,7 @@ public class ProjectFileService {
     pomContent = pomContent.replaceAll("%PROJECT_GROUP_ID%", workspace.getProjectGroupId());
     pomContent = pomContent.replaceAll("%PROJECT_VERSION%", workspace.getProjectVersion());
     pomContent = pomContent.replaceAll("%MODULES_ARTIFACT_ID%",
-        workspace.getProjectArtifactId() + "-modules");
+            workspace.getProjectArtifactId() + "-modules");
 
     if (file.createNewFile()) {
       Files.write(file.toPath(), pomContent.getBytes(charset));
@@ -146,16 +147,16 @@ public class ProjectFileService {
    * @throws IOException if it fails to create the file
    */
   public void addPomToTheme(
-      Path appPath,
-      LiferayApp theme,
-      LiferayWorkspace workspace) throws IOException {
+          Path appPath,
+          LiferayApp theme,
+          LiferayWorkspace workspace) throws IOException {
 
     var pomContent = new BufferedReader(
-        new InputStreamReader(
-            WorkspaceService.class
-                .getResourceAsStream(MAVEN_RESOURCES_DIR + "/theme-pom.xml")))
-        .lines()
-        .collect(Collectors.joining("\n"));
+            new InputStreamReader(
+                    WorkspaceService.class
+                            .getResourceAsStream(MAVEN_RESOURCES_DIR + "/theme-pom.xml")))
+            .lines()
+            .collect(Collectors.joining("\n"));
 
     var file = new File(appPath.toAbsolutePath().toString(), "pom.xml");
     var charset = StandardCharsets.UTF_8;
@@ -163,7 +164,7 @@ public class ProjectFileService {
 
     pomContent = pomContent.replaceAll("%PROJECT_GROUP_ID%", workspace.getProjectGroupId());
     pomContent = pomContent
-        .replaceAll("%THEMES_ARTIFACT_ID%", workspace.getProjectArtifactId() + "-themes");
+            .replaceAll("%THEMES_ARTIFACT_ID%", workspace.getProjectArtifactId() + "-themes");
     pomContent = pomContent.replaceAll("%PROJECT_VERSION%", workspace.getProjectVersion());
     pomContent = pomContent.replaceAll("%THEME_NAME%", themeArtifactId);
     pomContent = pomContent.replaceAll("%NODE_VERSION%", NODE_VERSION);
@@ -200,13 +201,13 @@ public class ProjectFileService {
     var filePath = Path.of(themePath.toAbsolutePath().toString(), "liferay-theme.json");
     var charset = StandardCharsets.UTF_8;
     var content = "{\n"
-        + "  \"LiferayTheme\": {\n"
-        + "    \"appServerPath\": \"../bundles/tomcat\",\n"
-        + "    \"deployPath\": \"../../bundles/deploy\",\n"
-        + "    \"deploymentStrategy\": \"LocalAppServer\",\n"
-        + "    \"url\": \"http://localhost:8080\"\n"
-        + "  }\n"
-        + "}\n";
+            + "  \"LiferayTheme\": {\n"
+            + "    \"appServerPath\": \"../bundles/tomcat\",\n"
+            + "    \"deployPath\": \"../../bundles/deploy\",\n"
+            + "    \"deploymentStrategy\": \"LocalAppServer\",\n"
+            + "    \"url\": \"http://localhost:8080\"\n"
+            + "  }\n"
+            + "}\n";
     Files.write(filePath, content.getBytes(charset));
   }
 

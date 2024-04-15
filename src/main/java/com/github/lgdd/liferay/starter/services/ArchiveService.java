@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.inject.Singleton;
+
+import jakarta.inject.Singleton;
 import org.apache.commons.compress.utils.IOUtils;
 
 /**
@@ -23,7 +24,7 @@ public class ArchiveService {
   }
 
   private void compressDirectoryToZipFile(String rootDir, String sourceDir, ZipOutputStream out)
-      throws IOException {
+          throws IOException {
     var fileList = new File(sourceDir).listFiles();
 
     if (fileList == null) {
@@ -40,7 +41,7 @@ public class ArchiveService {
           compressDirectoryToZipFile(rootDir, sourceDir + File.separator + file.getName(), out);
         } else {
           ZipEntry entry = new ZipEntry(
-              sourceDir.replace(rootDir, "") + File.separator + file.getName());
+                  sourceDir.replace(rootDir, "") + File.separator + file.getName());
           out.putNextEntry(entry);
 
           FileInputStream in = new FileInputStream(sourceDir + File.separator + file.getName());

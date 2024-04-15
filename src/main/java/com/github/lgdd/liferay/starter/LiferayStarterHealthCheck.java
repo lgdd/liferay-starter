@@ -7,8 +7,8 @@ import com.github.lgdd.liferay.starter.services.JavaScriptAppService;
 import com.github.lgdd.liferay.starter.services.ProjectFileService;
 import com.github.lgdd.liferay.starter.services.ThemeService;
 import com.github.lgdd.liferay.starter.services.WorkspaceService;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
@@ -26,12 +26,12 @@ public class LiferayStarterHealthCheck implements HealthCheck {
     var responseBuilder = HealthCheckResponse.named("Liferay Starter Health Check");
 
     if (workspaceService != null
-        && archiveService != null
-        && commandService != null
-        && projectFileService != null
-        && javaAppService != null
-        && javaScriptAppService != null
-        && themeService != null) {
+            && archiveService != null
+            && commandService != null
+            && projectFileService != null
+            && javaAppService != null
+            && javaScriptAppService != null
+            && themeService != null) {
       responseBuilder.up();
     } else {
       responseBuilder.down();
