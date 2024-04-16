@@ -55,6 +55,8 @@ jobs:
           push: true
           tags: lgdd/liferay-starter:latest-jvm,lgdd/liferay-starter:${{ needs.release-please.outputs.major }}.${{ needs.release-please.outputs.minor }}.${{ needs.release-please.outputs.patch }}-jvm
   push-native-docker-image:
+    needs: release-please
+    if: needs.release-please.outputs.release_created
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
