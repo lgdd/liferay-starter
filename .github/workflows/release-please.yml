@@ -15,3 +15,5 @@ jobs:
     steps:
       - uses: google-github-actions/release-please-action@v4
         id: release
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
