@@ -31,6 +31,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
+          file: {context}/Dockerfile.jvm
           push: false
           tags: lgdd/liferay-starter:latest-jvm
   docker-native-build:
@@ -49,5 +50,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
+          file: {context}/Dockerfile.native
           push: false
           tags: lgdd/liferay-starter:latest
