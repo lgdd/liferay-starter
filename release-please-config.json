@@ -1,8 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "release-type": "maven",
-  "skip-snapshot": true,
   "packages": {
-    ".": {}
+    ".": {
+      "release-type": "simple",
+      "skip-snapshot": true,
+      "extra-files": [
+        {
+          "type": "pom",
+          "path": "pom.xml"
+        }
+      ]
+    }
   }
 }
