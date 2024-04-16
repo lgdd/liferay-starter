@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.lgdd.liferay.starter</groupId>
   <artifactId>liferay-starter</artifactId>
-  <version>2.5.6-SNAPSHOT</version>
+  <version>2.6.0</version>
 
   <properties>
     <commons-compress.version>1.26.1</commons-compress.version>
