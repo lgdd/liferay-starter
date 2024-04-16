@@ -1,28 +1,25 @@
-FROM ghcr.io/graalvm/graalvm-ce:20.3.1.2 AS builder
+FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-17 AS builder
+
+USER root
 
 RUN microdnf update -y \
     && microdnf install -y nodejs \
-    && microdnf clean all \
-    && gu install native-image \
-    && mkdir workspace \
-    && chown 1001 workspace \
-    && chmod "g+rwX" workspace \
-    && chown 1001:root workspace
+    && microdnf clean all
 
+USER quarkus
 WORKDIR /workspace
 
-COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
+COPY --chown=quarkus:quarkus pom.xml .
+COPY --chown=quarkus:quarkus mvnw .
+COPY --chown=quarkus:quarkus .mvn .mvn
 
 RUN ./mvnw dependency:copy-dependencies
 
-COPY src src
-COPY resources-config.json .
+COPY --chown=quarkus:quarkus src src
 
-RUN ./mvnw package -Pnative
+RUN ./mvnw package -Dnative
 
-FROM frolvlad/alpine-glibc
+FROM frolvlad/alpine-glibc:alpine-3.14_glibc-2.33
 
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH=$PATH:/home/node/.npm-global/bin
@@ -46,10 +43,10 @@ RUN blade update && \
     blade version
 
 RUN npm i -g yarn \
-    && yarn global add yo
+    && yarn global add yo@3.1.0
 
 RUN yarn global add generator-old-liferay-theme@npm:generator-liferay-theme@^8.0.0 \
-    && yarn global add generator-liferay-theme \
+    && yarn global add generator-liferay-theme@10.1.0 \
     && yarn global add generator-liferay-js
 
 COPY --from=builder /workspace/target/*-runner /usr/bin/liferay-starter
