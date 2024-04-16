@@ -22,7 +22,7 @@ jobs:
   push-java-docker-image:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "APP_VERSION=$(${{ github.event.release.name }} | cut -d'v' -f 2)" >> $GITHUB_ENV
+      - run: echo "APP_VERSION=$(echo ${{ github.event.release.name }} | cut -d'v' -f 2)" >> $GITHUB_ENV
       - uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
