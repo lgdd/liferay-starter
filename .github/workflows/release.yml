@@ -23,11 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - id: get-release-version
-        shell: bash
-        run: |
-          appVersion=$(echo ${{ github.event.release.name }} | cut -d'v' -f 2)
-          echo "version=$appVersion" >> "$GITHUB_OUPUT"
+      - uses: actions/github-script@v7
+        id: get-release-version
+        with:
+          script: return "${{ github.event.release.name }}".substring(1)
+          result-encoding: string
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -42,16 +42,16 @@ jobs:
         with:
           file: Dockerfile.jvm
           push: true
-          tags: lgdd/liferay-starter:latest-jvm,lgdd/liferay-starter:${{ steps.get-release-version.outputs.version }}-jvm
+          tags: lgdd/liferay-starter:latest-jvm,lgdd/liferay-starter:${{ steps.get-release-version.outputs.result }}-jvm
   push-native-docker-image:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - id: get-release-version
-        shell: bash
-        run: |
-          appVersion=$(echo ${{ github.event.release.name }} | cut -d'v' -f 2)
-          echo "version=$appVersion" >> "$GITHUB_OUPUT"
+      - uses: actions/github-script@v7
+        id: get-release-version
+        with:
+          script: return "${{ github.event.release.name }}".substring(1)
+          result-encoding: string
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -66,4 +66,4 @@ jobs:
         with:
           file: Dockerfile.native
           push: true
-          tags: lgdd/liferay-starter:latest,lgdd/liferay-starter:${{ steps.get-release-version.outputs.version }}
+          tags: lgdd/liferay-starter:latest,lgdd/liferay-starter:${{ steps.get-release-version.outputs.result }}
