@@ -28,11 +28,11 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'maven'
-      - run: ./mvnw package
+      - run: ./mvnw package -Dquarkus.package.type=uber-jar
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.release-please.outputs.tag_name }} $(ls target/*.jar)
+          gh release upload ${{ needs.release-please.outputs.tag_name }} $(ls target/*-runner.jar)
   push-java-docker-image:
     needs: release-please
     if: needs.release-please.outputs.release_created
