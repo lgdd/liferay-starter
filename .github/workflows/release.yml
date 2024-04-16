@@ -1,23 +1,11 @@
 on:
-  push:
-    branches:
-      - main
-
-permissions:
-  contents: write
-  pull-requests: write
+  release:
+    types: [published]
 
 name: Release
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: google-github-actions/release-please-action@v4
-        id: release
-  upload-release:
-    needs: release-please
-    if: needs.release-please.outputs.release_created
+  upload-jar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,12 +18,11 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.release-please.outputs.tag_name }} $(ls target/*-runner.jar)
+          gh release upload ${{ github.event.release.name }} $(ls target/*-runner.jar)
   push-java-docker-image:
-    needs: release-please
-    if: needs.release-please.outputs.release_created
     runs-on: ubuntu-latest
     steps:
+      - run: echo "APP_VERSION=$(${{ github.event.release.name }} | cut -d'v' -f 2)" >> $GITHUB_ENV
       - uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -51,12 +38,11 @@ jobs:
         with:
           file: Dockerfile.jvm
           push: true
-          tags: lgdd/liferay-starter:latest-jvm,lgdd/liferay-starter:${{ needs.release-please.outputs.major }}.${{ needs.release-please.outputs.minor }}.${{ needs.release-please.outputs.patch }}-jvm
+          tags: lgdd/liferay-starter:latest-jvm,lgdd/liferay-starter:$APP_VERSION-jvm
   push-native-docker-image:
-    needs: release-please
-    if: needs.release-please.outputs.release_created
     runs-on: ubuntu-latest
     steps:
+      - run: echo "APP_VERSION=$(${{ github.event.release.name }} | cut -d'v' -f 2)" >> $GITHUB_ENV
       - uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -72,4 +58,4 @@ jobs:
         with:
           file: Dockerfile.native
           push: true
-          tags: lgdd/liferay-starter:latest,lgdd/liferay-starter:${{ needs.release-please.outputs.major }}.${{ needs.release-please.outputs.minor }}.${{ needs.release-please.outputs.patch }}
+          tags: lgdd/liferay-starter:latest,lgdd/liferay-starter:$APP_VERSION
